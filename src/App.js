@@ -128,8 +128,8 @@ export function App(action) {
 
     const add_income = async (action) => {
         console.log('add_income', action);
-        //const user_id = action.user_id;
-        const user_id = 1;
+        const user_id = action.user_id;
+        //const user_id = 1;
         const data = {
             tag_id: getValueByLabelInc(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
@@ -146,8 +146,8 @@ export function App(action) {
     };
 
     function delete_expense(action) {
-        //const user_id = action.user_id;
-        const user_id = 1;
+        const user_id = action.user_id;
+        //const user_id = 1;
         const transactionId = action.transaction_id;
         axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_id}`);
         fetchDataAll();
@@ -155,8 +155,8 @@ export function App(action) {
     }
 
     function delete_income(action) {
-        //const user_id = action.user_id;
-        const user_id = 1;
+        const user_id = action.user_id;
+        //const user_id = 1;
         const transactionId = action.transaction_id;
         axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_id}`);
         fetchDataAll();
@@ -311,8 +311,8 @@ export function App(action) {
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
-    const fetchDataAll = () => {
-        const user_id = 1;
+    const fetchDataAll = (action) => {
+        const user_id = action.user_id;
         console.log('front user_id', user_id);
         axios.get('http://45.147.177.32:8000/api/v1/finance', {
             params: {user_id: user_id}
