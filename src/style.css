@@ -1,0 +1,114 @@
+body{
+    width: 98%;
+    display: block;
+}
+.main-body{
+    min-width: 100%;
+}
+.App {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    min-height: 100vh;
+}
+
+.my-header {
+    margin-bottom: 2rem;
+}
+
+.buttons-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.button-bar-button {
+    flex: 1 1 calc(25% - 1.5rem);
+    max-width: 22.5rem;
+    margin-left: 1vh;
+}
+
+.cards-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+
+.cards-row-card {
+    display: flex;
+    flex: 1 1 calc(25% - 1.5rem);
+    margin-left: 1vh;
+    max-height: 60%;
+    max-width: 450px;
+}
+
+.button-bar-modal{
+    margin-top: 40px;
+}
+.row-notes{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    min-width: 30rem;
+    width: auto;
+}
+@media (max-width: 1080px) {
+    .buttons-bar {
+        flex: 0 1 100%;
+    }
+    .cards-row{
+        flex: 1 1 100%;
+    }
+    .cards-row, .buttons-bar  {
+        flex-direction: column;
+        align-items: center;
+        width: 98%;
+    }
+
+    .button-bar-button, .cards-row-card {
+        flex: 1 1 100%;
+        max-width: 80%;
+        width: 80%;
+    }
+    .sum-card {
+    height: auto;
+    max-height: 20rem;
+    margin-bottom: 30%;
+    }
+    body{
+    width: 98%;
+    display: block;
+    }
+}
+
+@media (max-width: 1280px) {
+    body{
+    width: 98%;
+    display: block;
+    }
+    .cards-row{
+        flex: 1 0 100%;
+    }
+
+    .scrollable-content {
+        max-height: 50vh;
+    }
+    .sum-card {
+        margin-bottom: 30%;
+    }   
+}
+
+.scrollable-content {
+    max-height: 62vh;
+    overflow-y: auto;
+}    
+.name-list {
+    margin-left: 1rem;
+
+}
