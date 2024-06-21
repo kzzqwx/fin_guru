@@ -106,9 +106,9 @@ export function App(action) {
 
     const add_expense = async (action) => {
         console.log('add_expense', action);
-        //const user_id = action.user_id;
-        const user_id = 1;
-        console.log('add expense',user_id);
+        const user_id = action.user_id;
+        //const user_id = 1;
+        console.log('add expense user',user_id);
         const data = {
             tag_id: getValueByLabelExp(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
@@ -146,8 +146,8 @@ export function App(action) {
     };
 
     function delete_expense(action) {
-        const user_id = action.user_id;
-        //const user_id = 1;
+        //const user_id = action.user_id;
+        const user_id = 1;
         const transactionId = action.transaction_id;
         axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_id}`);
         fetchDataAll();
@@ -156,7 +156,7 @@ export function App(action) {
 
     function delete_income(action) {
         const user_id = action.user_id;
-        //const user_id = 1;
+       // const user_id = 1;
         const transactionId = action.transaction_id;
         axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_id}`);
         fetchDataAll();
@@ -164,7 +164,8 @@ export function App(action) {
     }
     function initialize_user(action){
         //const characterId = action.characterID;
-        return action.user_id ;
+        console.log('initialize_user', action.user_id);
+        return action.user_id;
     }
     //const user_id = initialize_user(action);
 
@@ -311,8 +312,8 @@ export function App(action) {
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
-    const fetchDataAll = (action) => {
-        const user_id = action.user_id;
+    const fetchDataAll = () => {
+        const user_id = 1;
         console.log('front user_id', user_id);
         axios.get('http://45.147.177.32:8000/api/v1/finance', {
             params: {user_id: user_id}
