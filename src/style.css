@@ -1,4 +1,10 @@
-body{
+@import "https://cdn-app.sberdevices.ru/shared-static/0.0.0/styles/SBSansText.0.2.0.css";
+
+body {
+    font-family: "SB Sans Text", system-ui, -apple-system, Segoe UI,
+    Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont,
+    "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
     width: 98%;
     display: block;
 }
@@ -96,8 +102,8 @@ body{
         flex: 1 0 100%;
     }
 
-    .scrollable-content {
-        max-height: 50vh;
+    .scrollable-content, .scrollable-content-modal {
+        max-height: 90%;
     }
     .sum-card {
         margin-bottom: 30%;
@@ -110,5 +116,9 @@ body{
 }    
 .name-list {
     margin-left: 1rem;
-
+}
+.intro-screen{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
