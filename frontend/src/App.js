@@ -23,25 +23,33 @@ import {ToastForm} from "./components/ToastForm";
 import {MyHeader} from "./components/MyHeader";
 
 export function App() {
-    //Assistant
+
+    //Создали переменную для userId
+    const [userID, setUserID] = useState('');
+    //функция, которая преобразует userID для бэка
+    function removeSpecialCharacters(str) {
+        return str.replace(/[^a-zA-Z0-9]/g, '');
+    }
+    //Установили значение для userID
+    function initialize_user(action){
+        setUserID(removeSpecialCharacters(action.user_id));
+        return action.user_id;
+    }
+
 
     const [expense, setExpense] = useState([
-        {  tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
+        { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
     const [income, setIncome] = useState([
-        {  tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
+        { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
-
-
     let assistant;
-
     const initializeAssistant = (getState) => {
         if (process.env.NODE_ENV === 'development') {
             return createSmartappDebugger({
                 token: process.env.REACT_APP_TOKEN ?? '',
                 initPhrase: `Запусти ${process.env.REACT_APP_SMARTAPP}`,
                 getState,
-                // getRecoveryState: getState,
                 nativePanel: {
                     defaultText: '',
                     screenshotMode: false,
@@ -53,8 +61,6 @@ export function App() {
         }
     };
     function getStateForAssistant() {
-        //console.log('getStateForAssistant: transactions:', transactions);
-
         const state = {
             item_selector: {
                 items: expense.map(({tag_id, name, date, amount}) => ({
@@ -63,7 +69,6 @@ export function App() {
                     date,
                     amount
                 })),
-
                 ignored_words: [
                     'добавить', 'установить', 'запиши', 'поставь', 'закинь', 'напомнить',
                     'удалить', 'удали',
@@ -71,7 +76,6 @@ export function App() {
                 ],
             },
         };
-
         console.log('getStateForAssistant: state:', state);
         return state;
     }
@@ -89,102 +93,75 @@ export function App() {
     };
 
     const getValueByLabelExp = (label) => {
-
         const item = items_Expense.find(item => item.label === label);
         return item ? item.value : null;
     };
-
-
     const getValueByLabelInc = (label) => {
-
         const item = items_Income.find(item => item.label === label);
-        return item ? item.value : null;}
-
-
+        return item ? item.value : null;
+    }
+    //Используем установленное  userID
+    //Однако, он говорит, что userID - не определен
     const add_expense = async (action) => {
-        const user_id = localStorage.getItem('user_id');
-        //const user_id = action.user_id;
-        //const user_id = 1;
-        console.log('add expense user',user_id);
         const data = {
             tag_id: getValueByLabelExp(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
-
         };
         if (action.tag_id === null) {
             throw new Error(`Tag with label "${action.tag_id}" not found`);
         }
-
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_id}`, data);
-        fetchDataAll(); // Обновляем списки транзакций после успешного добавления
+        await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
+        fetchDataAll();
+        console.log('add expense',`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`);
         console.log(data);
     };
-
-
     const add_income = async (action) => {
-        console.log('add_income', action);
-        const user_id = localStorage.getItem('user_id');
-        //const user_id = 1;
         const data = {
             tag_id: getValueByLabelInc(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
-
         };
         if (action.tag_id === null) {
             throw new Error(`Tag with label "${action.tag_id}" not found`);
         }
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_id}`, data);
+        await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
         fetchDataAll(); // Обновляем списки транзакций после успешного добавления
+        console.log('add income', userID);
         console.log(data);
     };
-
     function delete_expense(action) {
-        //const user_id = action.user_id;
-        const user_id = localStorage.getItem('user_id');
         const transactionId = action.transaction_id;
-        axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_id}`);
+        axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
         fetchDataAll();
-
+        console.log('delete expense', userID);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
     }
-
     function delete_income(action) {
-        const user_id = localStorage.getItem('user_id');
-       // const user_id = 1;
         const transactionId = action.transaction_id;
-        axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_id}`);
+        axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
         fetchDataAll();
+        console.log('delete income',userID);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+    }
 
-    }
-    function initialize_user(action){
-        //const characterId = action.characterID;
-        console.log('initialize_user', action.user_id);
-        return action.user_id;
-    }
-    //const user_id = initialize_user(action);
 
     const dispatchAssistantAction = (action) => {
         console.log('dispatchAssistantAction', action);
         if (action) {
             switch (action.type) {
+                case 'initialize_user':
+                    return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
                 case 'add_income':
                     return add_income(action);
-
                 case 'delete_expense':
                     return delete_expense(action);
                 case 'delete_income':
                     return delete_income(action);
-
-                case 'initialize_user':
-                    //const user_id = action.user_id;
-                    console.log('user_is', action.user_id);
-                    localStorage.setItem('user_id', action.user_id);
-                    return initialize_user(action);
 
                 default:
                     throw new Error(`Unknown action type: ${action.type}`);
@@ -200,7 +177,6 @@ export function App() {
             if (event.type === 'character') {
                 console.log(`assistant.on(data): character: "${event?.character?.id}"`);
             }
-
             else if (event.type === 'insets') {
                 console.log('assistant.on(data): insets');
             } else {
@@ -231,7 +207,6 @@ export function App() {
 
     }, []);
 
-
     function _send_action_value(action_id, value) {
         const data = {
             action: {
@@ -250,14 +225,11 @@ export function App() {
 
     //IntroScreen
     const [isIntroVisible, setIsIntroVisible] = React.useState(true);
-    const handleStartClick = () => {
-        if(localStorage.getItem('user_id') !== ''){
+    const handleStartClick =  React.useCallback(() => {
+        if(userID !== ''){
             setIsIntroVisible(false);
         }
-    };
-
-
-
+    });
 
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
@@ -318,9 +290,8 @@ export function App() {
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
     const fetchDataAll = () => {
-        const user_id = localStorage.getItem('user_id');
         axios.get('http://45.147.177.32:8000/api/v1/finance', {
-            params: {user_id: user_id}
+            params: {user_id: userID}
         }).then(response => {
             setExpenseTransactions(response.data.transactions.expense);
             setIncomeTransactions(response.data.transactions.income);
@@ -342,9 +313,10 @@ export function App() {
     };
 
 
-    //ExpenceForm
-    const handleSubmitExpense = async () => {
-        const user_id = localStorage.getItem('user_id');
+    //Добавить расход через форму
+    //userID видно без проблем
+    //во всех остальных функциях, где используется экран тоже userID определен
+    const handleSubmitExpense =  () => {
         const data = {
             tag_id: dateExpense,
             name: nameExpense,
@@ -352,9 +324,10 @@ export function App() {
             amount: parseFloat(amountExpense)
         };
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_id}`, data);
+            axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
             closeExpense();
-            console.log('front user_id', user_id, data, `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_id}`);
+            console.log('Submit Expense', userID);
+            console.log(data);
             fetchDataAll();
             setDateInputExpense('');
             setDateExpense('');
@@ -367,7 +340,6 @@ export function App() {
 
     //IncomeForm
     const handleSubmitIncome = async () => {
-        const user_id = localStorage.getItem('user_id');
         const data = {
             tag_id: dateIncome,
             name: nameIncome,
@@ -375,8 +347,10 @@ export function App() {
             amount: parseFloat(amountIncome)
         };
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_id}`, data);
+            await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
             closeIncome();
+            console.log('Submit Income', userID);
+            console.log(data);
             fetchDataAll();
             setDateInputIncome('');
             setDateIncome('');
@@ -418,7 +392,6 @@ export function App() {
     };
 
     const handleEdit = async () => {
-        const user_id = localStorage.getItem('user_id');
         const new_data = {
             tag_id: 0,
             name: nameEdit,
@@ -427,7 +400,9 @@ export function App() {
             amount: parseFloat(amountEdit)
         };
         try {
-            await axios.put(`http://45.147.177.32:8000/api/v1/finance/${operationType}/update/${idEdit}?user_id=${user_id}`, new_data);
+            await axios.put(`http://45.147.177.32:8000/api/v1/finance/${operationType}/update/${idEdit}?user_id=${userID}`, new_data);
+            console.log('Edit Notes', userID);
+            console.log(new_data);
             fetchDataAll();
             setIdEdit('');
             setOperationType('');
@@ -460,9 +435,8 @@ export function App() {
         setIdOperation(e.target.value);
     };
     const handleDelete = async () => {
-        const user_id = localStorage.getItem('user_id');
         try {
-            axios.delete(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${user_id}`);
+            axios.delete(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
 
         } catch (error) {
             console.error( error);
@@ -470,7 +444,9 @@ export function App() {
             setIdOperation('');
             setOperationType('');
             closeDelete();
-            fetchDataAll();
+        console.log('Delete Notes', userID);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
+        fetchDataAll();
     };
 
 
@@ -519,14 +495,14 @@ export function App() {
                                     <Headline3 mb={20}>Добавить расходы</Headline3>
                                     <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Объект"
                                         value={nameExpense}
                                         onChange={handleNameChangeExpense}
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
                                     <Select
-                                        required='true'
+                                        required={true}
                                         value={dateExpense}
                                         items={items_Expense}
                                         onChange={setDateExpense}
@@ -535,7 +511,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Введите сумму"
                                         type='number'
                                         value={amountExpense}
@@ -543,7 +519,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         type="date"
                                         value={dateInputExpense}
                                         onChange={handleDateChangeExpense}
@@ -557,12 +533,12 @@ export function App() {
                                     <Headline3 mb={20}>Добавить доходы </Headline3>
                                     <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
                                     <TextField placeholder="Объект"
-                                               required='true'
+                                               required={true}
                                                value={nameIncome}
                                                onChange={handleNameChangeIncome}/>
                                     <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
                                     <Select
-                                        required='true'
+                                        required={true}
                                         value={dateIncome}
                                         items={items_Income}
                                         onChange={setDateIncome}
@@ -571,7 +547,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Введите сумму"
                                         type='number'
                                         value={amountIncome}
@@ -579,7 +555,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         type="date"
                                         value={dateInputIncome}
                                         onChange={handleDateChangeIncome}
@@ -593,7 +569,7 @@ export function App() {
                                     <Headline3 mb={20}>Редактировать запись</Headline3>
                                     <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
                                     <Select
-                                        required='true'
+                                        required={true}
                                         value={operationType}
                                         items={options_delete}
                                         onChange={setOperationType}
@@ -602,7 +578,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Id"
                                         type='number'
                                         value={idEdit}
@@ -610,13 +586,13 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Новое название:</ParagraphText1>
                                     <TextField placeholder="Объект"
-                                               required='true'
+                                               required={true}
                                                value={nameEdit}
                                                onChange={handleNameEdit}
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Новая стоимость:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Введите сумму"
                                         type='number'
                                         value={amountEdit}
@@ -624,7 +600,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Новая дата:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         type="date"
                                         value={dateEdit}
                                         onChange={handleDateEdit}
@@ -638,7 +614,7 @@ export function App() {
                                     <Headline3 mb={20}>Удалить запись</Headline3>
                                     <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
                                     <Select
-                                        required='true'
+                                        required={true}
                                         value={operationType}
                                         items={options_delete}
                                         onChange={setOperationType}
@@ -647,7 +623,7 @@ export function App() {
                                     />
                                     <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
                                     <TextField
-                                        required='true'
+                                        required={true}
                                         placeholder="Id"
                                         type='number'
                                         value={idOperation}
