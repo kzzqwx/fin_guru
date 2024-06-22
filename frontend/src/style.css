@@ -50,7 +50,7 @@ body {
     flex: 1 1 calc(25% - 1.5rem);
     margin-left: 1vh;
     max-height: 60%;
-    max-width: 450px;
+    width: 33%;
 }
 
 .button-bar-modal{
@@ -113,7 +113,8 @@ body {
 .scrollable-content {
     max-height: 62vh;
     overflow-y: auto;
-}    
+}
+
 .name-list {
     margin-left: 1rem;
 }

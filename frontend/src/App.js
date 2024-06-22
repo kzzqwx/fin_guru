@@ -28,7 +28,7 @@ export function App() {
     const [userID, setUserID] = useState('');
     //функция, которая преобразует userID для бэка
     function removeSpecialCharacters(str) {
-        return str.replace(/[^a-zA-Z0-9]/g, '');
+        return str.replace(/[^a-zA-Z0-9]/g);
     }
     //Установили значение для userID
     function initialize_user(action){
@@ -365,55 +365,6 @@ export function App() {
         const item = items_Income.find(item => item.value === value);
         return item ? item.label : 'Неизвестно';
     };
-
-
-    //Edit
-    const [isEditOpen, setIsEditOpen] = React.useState(false);
-    const closeEdit = React.useCallback(() => {
-        setIsEditOpen(false);
-    });
-    const [idEdit, setIdEdit] = useState('');
-    const handleIdEdit = (e) => {
-        setIdEdit(e.target.value);
-    };
-    const [dateEdit, setDateEdit] = React.useState('');
-    const [nameEdit, setNameEdit] = useState('');
-    const [amountEdit, setAmountEdit] = useState('');
-    const handleNameEdit = (e) => {
-        setNameEdit(e.target.value);
-    };
-
-    const handleAmountEdit = (e) => {
-        setAmountEdit(e.target.value);
-    };
-
-    const handleDateEdit = (e) => {
-        setDateEdit(e.target.value);
-    };
-
-    const handleEdit = async () => {
-        const new_data = {
-            tag_id: 0,
-            name: nameEdit,
-            type: operationType,
-            date: dateEdit,
-            amount: parseFloat(amountEdit)
-        };
-        try {
-            await axios.put(`http://45.147.177.32:8000/api/v1/finance/${operationType}/update/${idEdit}?user_id=${userID}`, new_data);
-            console.log('Edit Notes', userID);
-            console.log(new_data);
-            fetchDataAll();
-            setIdEdit('');
-            setOperationType('');
-            setNameEdit('');
-            setAmountEdit('');
-            closeEdit();
-        } catch (error) {
-            console.error("There was an error creating the income!", error, new_data);
-        }
-    };
-
     //Delete
     const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
     const closeDelete = React.useCallback(() => {
@@ -562,52 +513,6 @@ export function App() {
                                     />
                                     <Button stretch="true" text="Добавить" onClick={handleSubmitIncome} className="button-bar-modal"/>
                                 </Modal>
-
-                                <Button className="button-bar-button" size="l" pin="circle-circle"
-                                        text="Редактировать запись" onClick={() => setIsEditOpen(true)}/>
-                                <Modal className="scrollable-content-modal" isOpen={isEditOpen} onClose={closeEdit}>
-                                    <Headline3 mb={20}>Редактировать запись</Headline3>
-                                    <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
-                                    <Select
-                                        required={true}
-                                        value={operationType}
-                                        items={options_delete}
-                                        onChange={setOperationType}
-                                        placeholder="Выберите..."
-                                        status="success"
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Id"
-                                        type='number'
-                                        value={idEdit}
-                                        onChange={handleIdEdit}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Новое название:</ParagraphText1>
-                                    <TextField placeholder="Объект"
-                                               required={true}
-                                               value={nameEdit}
-                                               onChange={handleNameEdit}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Новая стоимость:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Введите сумму"
-                                        type='number'
-                                        value={amountEdit}
-                                        onChange={handleAmountEdit}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Новая дата:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        type="date"
-                                        value={dateEdit}
-                                        onChange={handleDateEdit}
-                                    />
-                                    <Button className="button-bar-modal" stretch="true" text="Изменить" onClick={handleEdit}/>
-                                </Modal>
-
                                 <Button className="button-bar-button" size="l" pin="circle-circle"
                                         text="Удалить запись" onClick={() => setIsDeleteOpen(true)}/>
                                 <Modal className="scrollable-content-modal" isOpen={isDeleteOpen} onClose={closeDelete}>
