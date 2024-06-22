@@ -24,15 +24,12 @@ import {MyHeader} from "./components/MyHeader";
 
 export function App() {
     //Assistant
-    // const [transactions, setTransactions] = useState([
-    //     { id: Math.random().toString(36).substring(7), type: 'expense', name: 'Groceries', сategory: 'Food', amount: 50, date: new Date().toISOString() },
-    //     { id: Math.random().toString(36).substring(7), type: 'income', name: 'Salary', category: 'Job', amount: 1000, date: new Date().toISOString() }
-    // ]);
+
     const [expense, setExpense] = useState([
-        { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
+        {  tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
     const [income, setIncome] = useState([
-        { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
+        {  tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
 
 
