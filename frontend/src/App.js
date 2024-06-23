@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState } from 'react';
 import {
     Button,
     Card,
@@ -21,22 +21,54 @@ import axios from "axios";
 import {createAssistant, createSmartappDebugger} from '@salutejs/client';
 import {ToastForm} from "./components/ToastForm";
 import {MyHeader} from "./components/MyHeader";
+import { openDB } from 'idb';
+import { useSpatnavInitialization, useSection, getCurrentFocusedElement} from '@salutejs/spatial';
 
 export function App() {
 
-    //Создали переменную для userId
-    const [userID, setUserID] = useState('');
-    //функция, которая преобразует userID для бэка
+    // пульт
+
+
+
+
+    const initDB = async () => {
+        const db = await openDB('myDatabase', 1, {
+            upgrade(db) {
+                db.createObjectStore('keyval');
+            },
+        });
+        return db;
+    };
+
+    const saveUserID = async (userID) => {
+        const db = await initDB();
+        const tx = db.transaction('keyval', 'readwrite');
+        const store = tx.objectStore('keyval');
+        await store.put(userID, 'userID');
+        await tx.done;
+    };
+
+    const getUserID = async () => {
+        const db = await initDB();
+        const tx = db.transaction('keyval', 'readonly');
+        const store = tx.objectStore('keyval');
+        const userID = await store.get('userID');
+        await tx.done;
+        return userID;
+    };
+
+
+
+
     function removeSpecialCharacters(str) {
         return str.replace(/[^a-zA-Z0-9]/g);
     }
     //Установили значение для userID
     function initialize_user(action){
-        setUserID(removeSpecialCharacters(action.user_id));
         return action.user_id;
     }
 
-
+    // assistant
     const [expense, setExpense] = useState([
         { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
@@ -103,21 +135,21 @@ export function App() {
     //Используем установленное  userID
     //Однако, он говорит, что userID - не определен
     const add_expense = async (action) => {
+        const userID = await getUserID(); // Get userID from IndexedDB
         const data = {
             tag_id: getValueByLabelExp(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
         };
-        if (action.tag_id === null) {
-            throw new Error(`Tag with label "${action.tag_id}" not found`);
-        }
         await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
         fetchDataAll();
-        console.log('add expense',`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`);
+        console.log('add expense', `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`);
         console.log(data);
     };
+
     const add_income = async (action) => {
+        const userID = await getUserID();
         const data = {
             tag_id: getValueByLabelInc(capitalizeFirstLetter(action.tag_id)),
             name: action.name,
@@ -132,20 +164,24 @@ export function App() {
         console.log('add income', userID);
         console.log(data);
     };
-    function delete_expense(action) {
+    const delete_expense = async (action) => {
+        const userID = await getUserID();
         const transactionId = action.transaction_id;
-        axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
-        fetchDataAll();
+        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+        await fetchDataAll();
         console.log('delete expense', userID);
         console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
-    }
-    function delete_income(action) {
+    };
+
+    const delete_income = async (action) => {
+        const userID = await getUserID();
         const transactionId = action.transaction_id;
-        axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
-        fetchDataAll();
-        console.log('delete income',userID);
+        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+        await fetchDataAll();
+        console.log('delete income', userID);
         console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
-    }
+    };
+
 
 
     const dispatchAssistantAction = (action) => {
@@ -153,6 +189,8 @@ export function App() {
         if (action) {
             switch (action.type) {
                 case 'initialize_user':
+                    //localStorage.setItem("userID", removeSpecialCharacters(action.user_id));
+                    saveUserID(removeSpecialCharacters(action.user_id));
                     return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
@@ -207,26 +245,14 @@ export function App() {
 
     }, []);
 
-    function _send_action_value(action_id, value) {
-        const data = {
-            action: {
-                action_id: action_id,
-                parameters: {
-                    value: value,
-                },
-            },
-        };
-        const unsubscribe = this.assistant.sendData(data, (data) => {
-            const { type, payload } = data;
-            console.log('sendData onData:', type, payload);
-            unsubscribe();
-        });
-    }
 
     //IntroScreen
     const [isIntroVisible, setIsIntroVisible] = React.useState(true);
     const handleStartClick =  React.useCallback(() => {
-        if(userID !== ''){
+        if(localStorage.getItem("userID") == null){
+            setIsIntroVisible(true);
+        }
+        else{
             setIsIntroVisible(false);
         }
     });
@@ -289,9 +315,10 @@ export function App() {
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
-    const fetchDataAll = () => {
+    const fetchDataAll = async () => {
+        const userID = await getUserID(); // Get userID from IndexedDB
         axios.get('http://45.147.177.32:8000/api/v1/finance', {
-            params: {user_id: userID}
+            params: { user_id: userID }
         }).then(response => {
             setExpenseTransactions(response.data.transactions.expense);
             setIncomeTransactions(response.data.transactions.income);
@@ -299,6 +326,8 @@ export function App() {
             console.error('Error fetching data:', error);
         });
     };
+
+
     useEffect(() => {
         if (!isIntroVisible) {
             fetchDataAll();
@@ -316,7 +345,8 @@ export function App() {
     //Добавить расход через форму
     //userID видно без проблем
     //во всех остальных функциях, где используется экран тоже userID определен
-    const handleSubmitExpense =  () => {
+    const handleSubmitExpense = async () => {
+        const userID = await getUserID();
         const data = {
             tag_id: dateExpense,
             name: nameExpense,
@@ -324,11 +354,11 @@ export function App() {
             amount: parseFloat(amountExpense)
         };
         try {
-            axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
+            await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
             closeExpense();
             console.log('Submit Expense', userID);
             console.log(data);
-            fetchDataAll();
+            await fetchDataAll();
             setDateInputExpense('');
             setDateExpense('');
             setNameExpense('');
@@ -338,8 +368,10 @@ export function App() {
         }
     };
 
+
     //IncomeForm
     const handleSubmitIncome = async () => {
+        const userID = await getUserID();
         const data = {
             tag_id: dateIncome,
             name: nameIncome,
@@ -351,15 +383,14 @@ export function App() {
             closeIncome();
             console.log('Submit Income', userID);
             console.log(data);
-            fetchDataAll();
+            await fetchDataAll();
             setDateInputIncome('');
             setDateIncome('');
             setNameIncome('');
             setAmountIncome('');
-
-            } catch (error) {
-                console.error("error creating the income", error, data);
-            }
+        } catch (error) {
+            console.error("error creating the income", error, data);
+        }
     };
     const getLabelByValueIncome = (value) => {
         const item = items_Income.find(item => item.value === value);
@@ -386,19 +417,20 @@ export function App() {
         setIdOperation(e.target.value);
     };
     const handleDelete = async () => {
+        const userID = await getUserID();
         try {
-            axios.delete(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
-
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
         } catch (error) {
-            console.error( error);
+            console.error(error);
         }
-            setIdOperation('');
-            setOperationType('');
-            closeDelete();
+        setIdOperation('');
+        setOperationType('');
+        closeDelete();
         console.log('Delete Notes', userID);
         console.log(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
-        fetchDataAll();
+        await fetchDataAll();
     };
+
 
 
     //sum
@@ -563,7 +595,7 @@ export function App() {
                                     </CardContent>
                                 </Card>
                                 <Card className="cards-row-card" style={{ maxHeight: '22.5rem'}}>
-                                    <Cell className="name-list"content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>}/>
+                                    <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>}/>
                                     <CardContent className="scrollable-content" compact>
                                         {incomeTransactions.slice().reverse().map((transaction, index) => (
                                             <CellListItem
