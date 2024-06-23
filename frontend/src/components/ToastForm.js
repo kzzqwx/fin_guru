@@ -17,7 +17,7 @@ export const ToastForm = () => {
 
     return (
         <div>
-            <ActionButton onClick={handleHelpClick}><IconHelpCircleOutline size="s" color="inherit" /></ActionButton>
+            <ActionButton className={'sn-section-item'} onClick={handleHelpClick}><IconHelpCircleOutline size="s" color="inherit" /></ActionButton>
         </div>
     );
 };

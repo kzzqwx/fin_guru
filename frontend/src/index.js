@@ -15,7 +15,7 @@ ReactDOM.render(
             <ModalsProvider>
                     <App />
                     <GlobalStyle />
-            </ModalsProvider>
+                </ModalsProvider>
         </SSRProvider>
     </DeviceThemeProvider>,
     document.getElementById('root'),

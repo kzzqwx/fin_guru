@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Button,
     Card,
@@ -13,9 +13,10 @@ import {
     TextBoxBigTitle,
     TextBoxSubTitle,
     TextBoxTitle,
-    ToastProvider
+    ToastProvider,
+    TextField
 } from '@salutejs/plasma-ui';
-import {Modal, Select, TextField} from "@salutejs/plasma-web";
+import {Modal, Select, ModalsProvider} from "@salutejs/plasma-web";
 import './style.css';
 import axios from "axios";
 import {createAssistant, createSmartappDebugger} from '@salutejs/client';
@@ -24,12 +25,54 @@ import {MyHeader} from "./components/MyHeader";
 import { openDB } from 'idb';
 import { useSpatnavInitialization, useSection, getCurrentFocusedElement} from '@salutejs/spatial';
 
+
 export function App() {
-
-    // пульт
-
+    // sectionElements:
 
 
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         const focusedElement = getCurrentFocusedElement();
+    //         console.log("Focused element:", focusedElement);
+    //     }, 5000); // 5000 миллисекунд = 5 секунд
+    //
+    //     // Очистка интервала при размонтировании компонента
+    //     return () => clearInterval(intervalId);
+    // }, []);
+
+    // useEffect(() => {
+    //     const handleKeyDown = (event) => {
+    //         switch (event.code) {
+    //             case 'ArrowLeft':
+    //                 event.preventDefault();
+    //                 const focusedElementLeft = getCurrentFocusedElement();
+    //                 // if (focusedElementLeft && focusedElementLeft.id === "my-slider") {
+    //                 //     handleMaskChange(maskValue - 1);
+    //                 // }
+    //                 break;
+    //             case 'ArrowRight':
+    //                 event.preventDefault();
+    //                 const focusedElementRight = getCurrentFocusedElement();
+    //                 // if (focusedElementRight && focusedElementRight.id === "my-slider") {
+    //                 //     handleMaskChange(maskValue + 1);
+    //                 // }
+    //                 break;
+    //             case 'ArrowDown':
+    //                 // event.preventDefault();
+    //                 // window.scrollTo(0, window.scrollY + 50);
+    //                 break;
+    //             case 'ArrowUp':
+    //                 // event.preventDefault();
+    //                 // window.scrollTo(0, window.scrollY - 50);
+    //                 break;
+    //         }
+    //     };
+    //
+    //     window.addEventListener('keydown', handleKeyDown);
+    //
+    //     // Удаляем обработчик при размонтировании компонента
+    //     return () => window.removeEventListener('keydown', handleKeyDown);
+    // }, []);
 
     const initDB = async () => {
         const db = await openDB('myDatabase', 1, {
@@ -68,7 +111,6 @@ export function App() {
         return action.user_id;
     }
 
-    // assistant
     const [expense, setExpense] = useState([
         { user_id: "", tag_id: null, name: null, date: null, amount: null, transaction_id: null }]
     );
@@ -247,6 +289,7 @@ export function App() {
 
 
     //IntroScreen
+    /*
     const [isIntroVisible, setIsIntroVisible] = React.useState(true);
     const handleStartClick =  React.useCallback(() => {
         if(localStorage.getItem("userID") == null){
@@ -255,7 +298,7 @@ export function App() {
         else{
             setIsIntroVisible(false);
         }
-    });
+    });*/
 
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
@@ -328,11 +371,15 @@ export function App() {
     };
 
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (!isIntroVisible) {
             fetchDataAll();
         }
-    }, [isIntroVisible]);
+    }, [isIntroVisible]);*/
+
+    useEffect(() => {
+        fetchDataAll();
+    }, []);
 
 
 
@@ -431,7 +478,162 @@ export function App() {
         await fetchDataAll();
     };
 
+    const elementIds = ['button-0', 'button-1', 'button-2', 'button-3', 'button-4'];
+    const [activeElementId, setActiveElementId] = useState(elementIds[0]);
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const currentIndex = elementIds.indexOf(activeElementId);
+            switch(event.code) {
+                case 'ArrowDown':
+                    // вниз
+                    if (currentIndex < elementIds.length - 1) {
+                        setActiveElementId(elementIds[currentIndex + 1]);
+                    }
+                    break;
+                case 'ArrowUp':
+                    // вверх
+                    if (currentIndex > 0) {
+                        setActiveElementId(elementIds[currentIndex - 1]);
+                    }
+                    break;
+                case 'Enter':
+                    // ок
+                    const activeElement = document.getElementById(activeElementId);
+                    if (activeElement) {
+                        activeElement.focus();
+                        activeElement.click(); // если нужно имитировать клик
+                        if (currentIndex < elementIds.length - 1) {
+                            setActiveElementId(elementIds[currentIndex + 1]);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [activeElementId, elementIds]);
+
+
+
+
+    // document.addEventListener('keydown', (event) => {
+    //         switch (event.code) {
+    //             case 'ArrowDown':
+    //                 // вниз
+    //                 console.log("pupupu")
+    //
+    //                 break;
+    //             case 'ArrowUp':
+    //                 console.log("aaaa")
+    //                 // вверх
+    //
+    //                 break;
+    //
+    //             case 'Enter':
+    //                 // ок
+    //
+    //                 break;
+    //         }
+    //     }
+    // )
+
+
+    const Elements = ({}) => {
+        useSpatnavInitialization();
+        const [sectionProps] = useSection('Buttons');
+
+        const ref = useRef(null);
+
+        useEffect(() => {
+            const focusable = ref.current;
+
+            if (focusable) {
+                focusable.focus();
+            }
+        }, []);
+        return (
+            <div {...sectionProps}>
+
+                    <div className="buttons-bar" tabIndex={-1}>
+                        <Button className="button-bar-button" size="l" pin="circle-circle"
+                                text="Добавить расходы" onClick={() => setIsExpenseOpen(true)}/>
+
+
+                        <Button className="button-bar-button" size="l" pin="circle-circle"
+                                text="Добавить доходы" onClick={() => setIsIncomeOpen(true)}/>
+
+                        <Modal className="scrollable-content-modal" isOpen={isIncomeOpen} onClose={closeIncome}>
+                            <Headline3 mb={20}>Добавить доходы </Headline3>
+                            <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
+                            <TextField placeholder="Объект"
+                                       required={true}
+                                       value={nameIncome}
+                                       onChange={handleNameChangeIncome}/>
+                            <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
+                            <Select
+                                required={true}
+                                value={dateIncome}
+                                items={items_Income}
+                                onChange={setDateIncome}
+                                placeholder="Выберите..."
+                                status="success"
+                            />
+                            <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
+                            <TextField
+                                required={true}
+                                placeholder="Введите сумму"
+                                type='number'
+                                value={amountIncome}
+                                onChange={handleAmountChangeIncome}
+                            />
+                            <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
+                            <TextField
+                                required={true}
+                                type="date"
+                                value={dateInputIncome}
+                                onChange={handleDateChangeIncome}
+                            />
+                            <Button stretch="true" text="Добавить" onClick={handleSubmitIncome}
+                                    className="button-bar-modal"/>
+                        </Modal>
+                        <Button className="button-bar-button" size="l" pin="circle-circle"
+                                text="Удалить запись" onClick={() => setIsDeleteOpen(true)}/>
+                        <Modal className="scrollable-content-modal" isOpen={isDeleteOpen} onClose={closeDelete}>
+                            <Headline3 mb={20}>Удалить запись</Headline3>
+                            <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
+                            <Select
+                                required={true}
+                                value={operationType}
+                                items={options_delete}
+                                onChange={setOperationType}
+                                placeholder="Выберите..."
+                                status="success"
+                            />
+                            <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
+                            <TextField
+                                required={true}
+                                placeholder="Id"
+                                type='number'
+                                value={idOperation}
+                                onChange={handleIdOperation}
+                            />
+                            <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDelete}/>
+                        </Modal>
+
+                        <ToastForm/>
+                    </div>
+            </div>
+
+        );
+
+    }
 
     //sum
     const [totalExpense, setTotalExpense] = useState(0);
@@ -453,199 +655,142 @@ export function App() {
     }, [expenseTransactions, incomeTransactions]);
 
 
-        return (
-            <div className="App">
-                {isIntroVisible ? (
-                    <div className="intro-screen">
-                        <TextBox as="h1" size="xl" weight="bold">
-                            Финансовый Гуру
-                        </TextBox>
-                        <Button onClick={handleStartClick} size="l">
-                            Начать
-                        </Button>
+    return (
+        <div className="App">
+            <div className="main-app">
+                <ToastProvider>
+                    <div className="my-header">
+                        <MyHeader/>
                     </div>
-                ) : (
-                    <div className="main-app">
-                        <ToastProvider>
-                            <div className="my-header">
-                                <MyHeader />
-                            </div>
-                            <div className="buttons-bar">
-                                <Button className="button-bar-button" size="l" pin="circle-circle"
-                                        text="Добавить расходы" onClick={() => setIsExpenseOpen(true)}/>
+                    <Elements></Elements>
+                    <Modal className="scrollable-content-modal" isOpen={isExpenseOpen} onClose={closeExpense}>
+                        <Headline3 mb={20}>Добавить расходы</Headline3>
+                        <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
+                        <TextField className="sn-section-item"
+                            //onFocus={onFocus}
+                                   id="button-0"
+                                   required={true}
+                                   placeholder="Объект"
+                                   value={nameExpense}
+                                   onChange={handleNameChangeExpense}
+                                   tabIndex={activeElementId === 'button-0' ? 0 : -1}
 
-                                <Modal className="scrollable-content-modal" isOpen={isExpenseOpen} onClose={closeExpense}>
-                                    <Headline3 mb={20}>Добавить расходы</Headline3>
-                                    <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Объект"
-                                        value={nameExpense}
-                                        onChange={handleNameChangeExpense}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
-                                    <Select
-                                        required={true}
-                                        value={dateExpense}
-                                        items={items_Expense}
-                                        onChange={setDateExpense}
-                                        placeholder="Выберите..."
-                                        status="success"
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Введите сумму"
-                                        type='number'
-                                        value={amountExpense}
-                                        onChange={handleAmountChangeExpense}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        type="date"
-                                        value={dateInputExpense}
-                                        onChange={handleDateChangeExpense}
-                                    />
-                                    <Button m={10} stretch="true" text="Добавить" onClick={handleSubmitExpense}
-                                            className="button-bar-modal"/>
-                                </Modal>
-                                <Button className="button-bar-button" size="l" pin="circle-circle"
-                                        text="Добавить доходы" onClick={() => setIsIncomeOpen(true)}/>
-                                <Modal className="scrollable-content-modal" isOpen={isIncomeOpen} onClose={closeIncome}>
-                                    <Headline3 mb={20}>Добавить доходы </Headline3>
-                                    <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
-                                    <TextField placeholder="Объект"
-                                               required={true}
-                                               value={nameIncome}
-                                               onChange={handleNameChangeIncome}/>
-                                    <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
-                                    <Select
-                                        required={true}
-                                        value={dateIncome}
-                                        items={items_Income}
-                                        onChange={setDateIncome}
-                                        placeholder="Выберите..."
-                                        status="success"
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Введите сумму"
-                                        type='number'
-                                        value={amountIncome}
-                                        onChange={handleAmountChangeIncome}
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        type="date"
-                                        value={dateInputIncome}
-                                        onChange={handleDateChangeIncome}
-                                    />
-                                    <Button stretch="true" text="Добавить" onClick={handleSubmitIncome} className="button-bar-modal"/>
-                                </Modal>
-                                <Button className="button-bar-button" size="l" pin="circle-circle"
-                                        text="Удалить запись" onClick={() => setIsDeleteOpen(true)}/>
-                                <Modal className="scrollable-content-modal" isOpen={isDeleteOpen} onClose={closeDelete}>
-                                    <Headline3 mb={20}>Удалить запись</Headline3>
-                                    <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
-                                    <Select
-                                        required={true}
-                                        value={operationType}
-                                        items={options_delete}
-                                        onChange={setOperationType}
-                                        placeholder="Выберите..."
-                                        status="success"
-                                    />
-                                    <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
-                                    <TextField
-                                        required={true}
-                                        placeholder="Id"
-                                        type='number'
-                                        value={idOperation}
-                                        onChange={handleIdOperation}
-                                    />
-                                    <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDelete}/>
-                                </Modal>
 
-                                <ToastForm/>
-                            </div>
+                        />
+                        <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
+                        <Select className="sn-section-item"
+                                id="button-1"
+                                required={true}
+                                value={dateExpense}
+                                items={items_Expense}
+                                onChange={setDateExpense}
+                                placeholder="Выберите..."
+                                status="success"
+                                tabIndex={activeElementId === 'button-1' ? 0 : -1}
 
-                            <div className="cards-row">
-                                <Card className="cards-row-card" style={{ maxHeight: '22.5rem'}}>
-                                    <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>}/>
-                                    <CardContent className="scrollable-content" compact>
-                                        {expenseTransactions.slice().reverse().map((transaction, index) => (
-                                            <CellListItem
-                                                key={index}
-                                                content={
-                                                    <TextBox>
-                                                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                                                        <div className="row-notes">
-                                                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Тип: {getLabelByValueExpense(transaction.tag_id)} </TextBoxSubTitle>
-                                                        </div>
-                                                    </TextBox>
-                                                }
-                                            />
-                                        ))}
-                                    </CardContent>
-                                </Card>
-                                <Card className="cards-row-card" style={{ maxHeight: '22.5rem'}}>
-                                    <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>}/>
-                                    <CardContent className="scrollable-content" compact>
-                                        {incomeTransactions.slice().reverse().map((transaction, index) => (
-                                            <CellListItem
-                                                key={index}
-                                                content={
-                                                    <TextBox>
-                                                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                                                        <div className="row-notes">
-                                                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                            <TextBoxSubTitle>Тип: {getLabelByValueIncome(transaction.tag_id)} </TextBoxSubTitle>
-                                                        </div>
+                        />
+                        <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
+                        <TextField className="sn-section-item"
+                                   id="button-2"
+                                   required={true}
+                                   placeholder="Введите сумму"
+                                   type='number'
+                                   value={amountExpense}
+                                   onChange={handleAmountChangeExpense}
+                                   tabIndex={activeElementId === 'button-2' ? 0 : -1}
+                        />
+                        <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
+                        <TextField id="button-3"
+                                   required={true}
+                                   type="date"
+                                   value={dateInputExpense}
+                                   onChange={handleDateChangeExpense}
+                                   placeholder="ДД.ММ.ГГГГ  "
+                                   tabIndex={activeElementId === 'button-3' ? 0 : -1}
 
-                                                    </TextBox>
-                                                }
-                                            />
-                                        ))}
-                                    </CardContent>
-                                </Card>
-                                <Card className="cards-row-card sum-card">
-                                    <CardContent compact>
-                                        <Cell
-                                            content={<TextBoxBigTitle>Общая сумма расходов: </TextBoxBigTitle>}
-                                        />
-                                        <Cell
-                                            content={<TextBoxBiggerTitle><Price currency="rub" stroke={false}>{totalExpense}</Price></TextBoxBiggerTitle>}
+                        />
+                        <Button className="sn-section-item button-bar-modal" m={10}  id="button-4" tabIndex={activeElementId === 'button-5' ? 0 : -1}
+                                stretch="true" text="Добавить"
+                                onClick={handleSubmitExpense}
+                        />
+                    </Modal>
 
-                                            alignRight="center"
-                                        />
-                                    </CardContent>
-                                    <CardContent compact>
-                                        <Cell
-                                            content={<TextBoxBigTitle>Общая сумма доходов: </TextBoxBigTitle>}
-                                        />
-                                        <Cell
-                                            content={<TextBoxBiggerTitle><Price currency="rub" stroke={false}>{totalIncome}</Price></TextBoxBiggerTitle>}
+                    <div className="cards-row">
+                        <Card className="cards-row-card" style={{maxHeight: '22.5rem'}}>
+                            <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>}/>
+                            <CardContent className="scrollable-content" compact>
+                                {expenseTransactions.slice().reverse().map((transaction) => (
+                                    <CellListItem
+                                        key={transaction.transaction_id}
+                                        content={
+                                            <TextBox>
+                                                <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                                                <div className="row-notes">
+                                                    <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Сумма: <Price currency="rub"
+                                                                                   stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Тип: {getLabelByValueExpense(transaction.tag_id)} </TextBoxSubTitle>
+                                                </div>
+                                            </TextBox>
+                                        }
+                                    />
+                                ))}
+                            </CardContent>
+                        </Card>
+                        <Card className="cards-row-card" style={{maxHeight: '22.5rem'}}>
+                            <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>}/>
+                            <CardContent className="scrollable-content" compact>
+                                {incomeTransactions.slice().reverse().map((transaction, index) => (
+                                    <CellListItem
+                                        key={index}
+                                        content={
+                                            <TextBox>
+                                                <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                                                <div className="row-notes">
+                                                    <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Сумма: <Price currency="rub"
+                                                                                   stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
+                                                    <TextBoxSubTitle>Тип: {getLabelByValueIncome(transaction.tag_id)} </TextBoxSubTitle>
+                                                </div>
 
-                                            alignRight="center"
-                                        />
-                                    </CardContent>
-                                </Card>
-                            </div>
+                                            </TextBox>
+                                        }
+                                    />
+                                ))}
+                            </CardContent>
+                        </Card>
+                        <Card className="cards-row-card sum-card">
+                            <CardContent compact>
+                                <Cell
+                                    content={<TextBoxBigTitle>Общая сумма расходов: </TextBoxBigTitle>}
+                                />
+                                <Cell
+                                    content={<TextBoxBiggerTitle><Price currency="rub"
+                                                                        stroke={false}>{totalExpense}</Price></TextBoxBiggerTitle>}
 
-                        </ToastProvider>
+                                    alignRight="center"
+                                />
+                            </CardContent>
+                            <CardContent compact>
+                                <Cell
+                                    content={<TextBoxBigTitle>Общая сумма доходов: </TextBoxBigTitle>}
+                                />
+                                <Cell
+                                    content={<TextBoxBiggerTitle><Price currency="rub"
+                                                                        stroke={false}>{totalIncome}</Price></TextBoxBiggerTitle>}
+
+                                    alignRight="center"
+                                />
+                            </CardContent>
+                        </Card>
                     </div>
-                )}
 
-
+                </ToastProvider>
             </div>
-        );
+        </div>
+    );
 
-    }
+}
+
