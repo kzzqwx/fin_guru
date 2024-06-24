@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToast, Button, ActionButton } from '@salutejs/plasma-ui';
+import { useToast, Button} from '@salutejs/plasma-ui';
 import { IconHelpCircleOutline } from '@salutejs/plasma-icons';
 
 export const ToastForm = () => {
@@ -7,7 +7,7 @@ export const ToastForm = () => {
 
     const handleHelpClick = () => {
         showToast({
-            text: 'Для изменения (добавления, удаления, редактирования) данных в списках (расходы, доходы) необходимо заполнить каждое поле в соответствующей форме',
+            text: 'Для изменения (добавления, удаления) данных в списках (расходы, доходы) необходимо заполнить каждое поле в соответствующей форме',
             position: 'top',
             role: 'status',
             timeout: 3000,
@@ -17,7 +17,9 @@ export const ToastForm = () => {
 
     return (
         <div>
-            <ActionButton className={'sn-section-item'} onClick={handleHelpClick}><IconHelpCircleOutline size="s" color="inherit" /></ActionButton>
+            <Button pin="circle-circle" square  className="sn-section-item toast-button" onClick={handleHelpClick}>
+                <IconHelpCircleOutline size="s" color="inherit" />
+            </Button>
         </div>
     );
 };

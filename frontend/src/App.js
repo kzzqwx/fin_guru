@@ -26,53 +26,8 @@ import { openDB } from 'idb';
 import { useSpatnavInitialization, useSection, getCurrentFocusedElement} from '@salutejs/spatial';
 
 
+
 export function App() {
-    // sectionElements:
-
-
-    // useEffect(() => {
-    //     const intervalId = setInterval(() => {
-    //         const focusedElement = getCurrentFocusedElement();
-    //         console.log("Focused element:", focusedElement);
-    //     }, 5000); // 5000 миллисекунд = 5 секунд
-    //
-    //     // Очистка интервала при размонтировании компонента
-    //     return () => clearInterval(intervalId);
-    // }, []);
-
-    // useEffect(() => {
-    //     const handleKeyDown = (event) => {
-    //         switch (event.code) {
-    //             case 'ArrowLeft':
-    //                 event.preventDefault();
-    //                 const focusedElementLeft = getCurrentFocusedElement();
-    //                 // if (focusedElementLeft && focusedElementLeft.id === "my-slider") {
-    //                 //     handleMaskChange(maskValue - 1);
-    //                 // }
-    //                 break;
-    //             case 'ArrowRight':
-    //                 event.preventDefault();
-    //                 const focusedElementRight = getCurrentFocusedElement();
-    //                 // if (focusedElementRight && focusedElementRight.id === "my-slider") {
-    //                 //     handleMaskChange(maskValue + 1);
-    //                 // }
-    //                 break;
-    //             case 'ArrowDown':
-    //                 // event.preventDefault();
-    //                 // window.scrollTo(0, window.scrollY + 50);
-    //                 break;
-    //             case 'ArrowUp':
-    //                 // event.preventDefault();
-    //                 // window.scrollTo(0, window.scrollY - 50);
-    //                 break;
-    //         }
-    //     };
-    //
-    //     window.addEventListener('keydown', handleKeyDown);
-    //
-    //     // Удаляем обработчик при размонтировании компонента
-    //     return () => window.removeEventListener('keydown', handleKeyDown);
-    // }, []);
 
     const initDB = async () => {
         const db = await openDB('myDatabase', 1, {
@@ -166,21 +121,13 @@ export function App() {
         return `${year}-${formattedMonth}-${formattedDay}`;
     };
 
-    const getValueByLabelExp = (label) => {
-        const item = items_Expense.find(item => item.label === label);
-        return item ? item.value : null;
-    };
-    const getValueByLabelInc = (label) => {
-        const item = items_Income.find(item => item.label === label);
-        return item ? item.value : null;
-    }
     //Используем установленное  userID
     //Однако, он говорит, что userID - не определен
     const add_expense = async (action) => {
         const userID = await getUserID(); // Get userID from IndexedDB
         const data = {
-            tag_id: getValueByLabelExp(capitalizeFirstLetter(action.tag_id)),
-            name: action.name,
+            tag_id: 1,
+            name: capitalizeFirstLetter(action.name),
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
         };
@@ -193,8 +140,8 @@ export function App() {
     const add_income = async (action) => {
         const userID = await getUserID();
         const data = {
-            tag_id: getValueByLabelInc(capitalizeFirstLetter(action.tag_id)),
-            name: action.name,
+            tag_id: 1,
+            name: capitalizeFirstLetter(action.name),
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
         };
@@ -288,25 +235,13 @@ export function App() {
     }, []);
 
 
-    //IntroScreen
-    /*
-    const [isIntroVisible, setIsIntroVisible] = React.useState(true);
-    const handleStartClick =  React.useCallback(() => {
-        if(localStorage.getItem("userID") == null){
-            setIsIntroVisible(true);
-        }
-        else{
-            setIsIntroVisible(false);
-        }
-    });*/
-
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
     const closeExpense = React.useCallback(() => {
             setIsExpenseOpen(false);
     });
     const [dateInputExpense, setDateInputExpense] = React.useState('');
-    const [dateExpense, setDateExpense] = useState('');
+
     const [nameExpense, setNameExpense] = useState('');
     const [amountExpense, setAmountExpense] = useState('');
     const handleNameChangeExpense = (e) => {
@@ -319,16 +254,6 @@ export function App() {
     const handleDateChangeExpense = (e) => {
         setDateInputExpense(e.target.value);
     };
-    // написать подсказку в ассистенте
-    const items_Expense = [
-        {value: 1, label: 'Одежда'},
-        {value: 2, label: 'Продукты'},
-        {value: 3, label: 'Дом'},
-        {value: 4, label: 'Рестораны'},
-        {value: 5, label: 'Услуги'},
-        {value: 6, label: 'Развлечения'},
-        {value: 7, label: 'Иное'}
-    ];
 
 
     //Income
@@ -337,7 +262,6 @@ export function App() {
             setIsIncomeOpen(false);
     });
     const [dateInputIncome, setDateInputIncome] = React.useState('');
-    const [dateIncome, setDateIncome] = useState(null);
     const [nameIncome, setNameIncome] = useState('');
     const [amountIncome, setAmountIncome] = useState('');
     const handleNameChangeIncome = (e) => {
@@ -349,11 +273,6 @@ export function App() {
     const handleDateChangeIncome = (e) => {
         setDateInputIncome(e.target.value);
     };
-    const items_Income = [
-        {value: 1, label: 'Зарплата'},
-        {value: 2, label: 'Подарок'},
-        {value: 3, label: 'Иной доход'},
-    ];
 
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
@@ -370,23 +289,10 @@ export function App() {
         });
     };
 
-
-    /*useEffect(() => {
-        if (!isIntroVisible) {
-            fetchDataAll();
-        }
-    }, [isIntroVisible]);*/
-
     useEffect(() => {
         fetchDataAll();
     }, []);
 
-
-
-    const getLabelByValueExpense = (value) => {
-        const item = items_Expense.find(item => item.value === value);
-        return item ? item.label : 'Неизвестно';
-    };
 
 
     //Добавить расход через форму
@@ -395,7 +301,7 @@ export function App() {
     const handleSubmitExpense = async () => {
         const userID = await getUserID();
         const data = {
-            tag_id: dateExpense,
+            tag_id: 1,
             name: nameExpense,
             date: dateInputExpense,
             amount: parseFloat(amountExpense)
@@ -407,7 +313,6 @@ export function App() {
             console.log(data);
             await fetchDataAll();
             setDateInputExpense('');
-            setDateExpense('');
             setNameExpense('');
             setAmountExpense('');
         } catch (error) {
@@ -420,7 +325,7 @@ export function App() {
     const handleSubmitIncome = async () => {
         const userID = await getUserID();
         const data = {
-            tag_id: dateIncome,
+            tag_id: 1,
             name: nameIncome,
             date: dateInputIncome,
             amount: parseFloat(amountIncome)
@@ -432,51 +337,58 @@ export function App() {
             console.log(data);
             await fetchDataAll();
             setDateInputIncome('');
-            setDateIncome('');
             setNameIncome('');
             setAmountIncome('');
         } catch (error) {
             console.error("error creating the income", error, data);
         }
     };
-    const getLabelByValueIncome = (value) => {
-        const item = items_Income.find(item => item.value === value);
-        return item ? item.label : 'Неизвестно';
-    };
     //Delete
-    const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
-    const closeDelete = React.useCallback(() => {
-        setIsDeleteOpen(false);
+    const [isDeleteOpenExpense, setIsDeleteOpenExpense] = React.useState(false);
+    const closeDeleteExpense = React.useCallback(() => {
+        setIsDeleteOpenExpense(false);
     });
-
-    const [operationType, setOperationType] = useState('');
-    const options_delete = [
-            { value: 'income', label: 'Доходы' },
-        { value: 'expense', label: 'Расходы' }
-    ];
-
-    const handleOperationType = (e) => {
-            setOperationType(e.target.value);
-        };
-    const [idOperation, setIdOperation] = useState('');
-
-    const handleIdOperation = (e) => {
-        setIdOperation(e.target.value);
+    const [idOperationExpense, setIdOperationExpense] = useState('');
+    const handleIdOperationExpense = (e) => {
+        setIdOperationExpense(e.target.value);
     };
-    const handleDelete = async () => {
+    const handleDeleteExpense = async () => {
         const userID = await getUserID();
         try {
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${idOperationExpense}?user_id=${userID}`);
         } catch (error) {
             console.error(error);
         }
-        setIdOperation('');
-        setOperationType('');
-        closeDelete();
+        setIdOperationExpense('');
+        closeDeleteExpense();
         console.log('Delete Notes', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/${operationType}/delete/${idOperation}?user_id=${userID}`);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${idOperationExpense}?user_id=${userID}`);
         await fetchDataAll();
     };
+    //DeleteIncome
+    const [isDeleteOpenIncome, setIsDeleteOpenIncome] = React.useState(false);
+    const closeDeleteIncome = React.useCallback(() => {
+        setIsDeleteOpenIncome(false);
+    });
+    const [idOperationIncome, setIdOperationIncome] = useState('');
+
+    const handleIdOperationIncome = (e) => {
+        setIdOperationIncome(e.target.value);
+    };
+    const handleDeleteIncome = async () => {
+        const userID = await getUserID();
+        try {
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${idOperationIncome}?user_id=${userID}`);
+        } catch (error) {
+            console.error(error);
+        }
+        setIdOperationIncome('');
+        closeDeleteIncome();
+        console.log('Delete Notes', userID);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${idOperationIncome}?user_id=${userID}`);
+        await fetchDataAll();
+    };
+
 
     const elementIds = ['button-0', 'button-1', 'button-2', 'button-3', 'button-4'];
     const [activeElementId, setActiveElementId] = useState(elementIds[0]);
@@ -563,70 +475,21 @@ export function App() {
 
                     <div className="buttons-bar" tabIndex={-1}>
                         <Button className="button-bar-button" size="l" pin="circle-circle"
-                                text="Добавить расходы" onClick={() => setIsExpenseOpen(true)}/>
+                                text="Добавить расход" onClick={() => setIsExpenseOpen(true)}/>
 
 
                         <Button className="button-bar-button" size="l" pin="circle-circle"
-                                text="Добавить доходы" onClick={() => setIsIncomeOpen(true)}/>
+                                text="Добавить доход" onClick={() => setIsIncomeOpen(true)}/>
 
-                        <Modal className="scrollable-content-modal" isOpen={isIncomeOpen} onClose={closeIncome}>
-                            <Headline3 mb={20}>Добавить доходы </Headline3>
-                            <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
-                            <TextField placeholder="Объект"
-                                       required={true}
-                                       value={nameIncome}
-                                       onChange={handleNameChangeIncome}/>
-                            <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
-                            <Select
-                                required={true}
-                                value={dateIncome}
-                                items={items_Income}
-                                onChange={setDateIncome}
-                                placeholder="Выберите..."
-                                status="success"
-                            />
-                            <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
-                            <TextField
-                                required={true}
-                                placeholder="Введите сумму"
-                                type='number'
-                                value={amountIncome}
-                                onChange={handleAmountChangeIncome}
-                            />
-                            <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
-                            <TextField
-                                required={true}
-                                type="date"
-                                value={dateInputIncome}
-                                onChange={handleDateChangeIncome}
-                            />
-                            <Button stretch="true" text="Добавить" onClick={handleSubmitIncome}
-                                    className="button-bar-modal"/>
-                        </Modal>
+
+
                         <Button className="button-bar-button" size="l" pin="circle-circle"
-                                text="Удалить запись" onClick={() => setIsDeleteOpen(true)}/>
-                        <Modal className="scrollable-content-modal" isOpen={isDeleteOpen} onClose={closeDelete}>
-                            <Headline3 mb={20}>Удалить запись</Headline3>
-                            <ParagraphText1 mt={10} mb={10}>Из какого списка?</ParagraphText1>
-                            <Select
-                                required={true}
-                                value={operationType}
-                                items={options_delete}
-                                onChange={setOperationType}
-                                placeholder="Выберите..."
-                                status="success"
-                            />
-                            <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
-                            <TextField
-                                required={true}
-                                placeholder="Id"
-                                type='number'
-                                value={idOperation}
-                                onChange={handleIdOperation}
-                            />
-                            <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDelete}/>
-                        </Modal>
+                                text="Удалить расход" onClick={() => setIsDeleteOpenExpense(true)}/>
 
+
+
+                        <Button className="button-bar-button" size="l" pin="circle-circle"
+                                text="Удалить доход" onClick={() => setIsDeleteOpenIncome(true)}/>
                         <ToastForm/>
                     </div>
             </div>
@@ -664,30 +527,15 @@ export function App() {
                     </div>
                     <Elements></Elements>
                     <Modal className="scrollable-content-modal" isOpen={isExpenseOpen} onClose={closeExpense}>
-                        <Headline3 mb={20}>Добавить расходы</Headline3>
+                        <Headline3 mb={20}>Добавить расход</Headline3>
                         <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
                         <TextField className="sn-section-item"
-                            //onFocus={onFocus}
                                    id="button-0"
                                    required={true}
                                    placeholder="Объект"
                                    value={nameExpense}
                                    onChange={handleNameChangeExpense}
-                                   tabIndex={activeElementId === 'button-0' ? 0 : -1}
-
-
-                        />
-                        <ParagraphText1 mt={10} mb={10}>Тип:</ParagraphText1>
-                        <Select className="sn-section-item"
-                                id="button-1"
-                                required={true}
-                                value={dateExpense}
-                                items={items_Expense}
-                                onChange={setDateExpense}
-                                placeholder="Выберите..."
-                                status="success"
-                                tabIndex={activeElementId === 'button-1' ? 0 : -1}
-
+                                   tabIndex={activeElementId === 'button-1' ? 0 : -1}
                         />
                         <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
                         <TextField className="sn-section-item"
@@ -705,14 +553,65 @@ export function App() {
                                    type="date"
                                    value={dateInputExpense}
                                    onChange={handleDateChangeExpense}
-                                   placeholder="ДД.ММ.ГГГГ  "
+                                   placeholder="день.месяц.год"
                                    tabIndex={activeElementId === 'button-3' ? 0 : -1}
 
                         />
-                        <Button className="sn-section-item button-bar-modal" m={10}  id="button-4" tabIndex={activeElementId === 'button-5' ? 0 : -1}
+                        <Button className="sn-section-item button-bar-modal" m={10}  id="button-4" tabIndex={activeElementId === 'button-4' ? 0 : -1}
                                 stretch="true" text="Добавить"
                                 onClick={handleSubmitExpense}
                         />
+                    </Modal>
+                    <Modal className="scrollable-content-modal" isOpen={isIncomeOpen} onClose={closeIncome}>
+                        <Headline3 mb={20}>Добавить доход </Headline3>
+                        <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
+                        <TextField placeholder="Объект"
+                                   required={true}
+                                   value={nameIncome}
+                                   onChange={handleNameChangeIncome}/>
+                        <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
+                        <TextField
+                            required={true}
+                            placeholder="Введите сумму"
+                            type='number'
+                            value={amountIncome}
+                            onChange={handleAmountChangeIncome}
+                        />
+                        <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
+                        <TextField
+                            required={true}
+                            type="date"
+                            value={dateInputIncome}
+                            placeholder="день.месяц.год"
+                            onChange={handleDateChangeIncome}
+                        />
+                        <Button stretch="true" text="Добавить" onClick={handleSubmitIncome}
+                                className="button-bar-modal"/>
+                    </Modal>
+                    <Modal className="scrollable-content-modal" isOpen={isDeleteOpenExpense} onClose={closeDeleteExpense}>
+                        <Headline3 mb={20}>Удалить расход</Headline3>
+                        <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
+                        <TextField
+                            required={true}
+                            placeholder="Id"
+                            type='number'
+                            value={idOperationExpense}
+                            onChange={handleIdOperationExpense}
+                        />
+                        <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDeleteExpense}/>
+                    </Modal>
+                    <Modal className="scrollable-content-modal" isOpen={isDeleteOpenIncome} onClose={closeDeleteIncome}>
+                        <Headline3 mb={20}>Удалить доход</Headline3>
+                        <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
+                        <TextField
+                            required={true}
+                            placeholder="Id"
+                            type='number'
+                            value={idOperationIncome}
+                            onChange={handleIdOperationIncome}
+                        />
+
+                        <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDeleteIncome}/>
                     </Modal>
 
                     <div className="cards-row">
@@ -730,7 +629,6 @@ export function App() {
                                                     <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
                                                     <TextBoxSubTitle>Сумма: <Price currency="rub"
                                                                                    stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Тип: {getLabelByValueExpense(transaction.tag_id)} </TextBoxSubTitle>
                                                 </div>
                                             </TextBox>
                                         }
@@ -752,7 +650,6 @@ export function App() {
                                                     <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
                                                     <TextBoxSubTitle>Сумма: <Price currency="rub"
                                                                                    stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Тип: {getLabelByValueIncome(transaction.tag_id)} </TextBoxSubTitle>
                                                 </div>
 
                                             </TextBox>

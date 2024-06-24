@@ -29,10 +29,13 @@ body {
     gap: 0.75rem;
     margin-bottom: 2rem;
 }
+.toast-button {
+    display: flex;
+}
 
 .button-bar-button {
-    flex: 1 1 calc(25% - 1.5rem);
-    max-width: 22.5rem;
+    flex: 1 1 calc(23% - 1.5rem);
+    max-width: 22rem;
     margin-left: 1vh;
 }
 
@@ -106,9 +109,6 @@ body {
     .scrollable-content, .scrollable-content-modal {
         max-height: 90%;
     }
-    .sum-card {
-        margin-bottom: 30%;
-    }   
 }
 
 .scrollable-content {
