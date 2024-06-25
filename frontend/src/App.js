@@ -13,17 +13,18 @@ import {
     TextBoxBigTitle,
     TextBoxSubTitle,
     TextBoxTitle,
-    ToastProvider,
-    TextField
+    TextField,
+    ActionButton
 } from '@salutejs/plasma-ui';
-import {Modal, Select, ModalsProvider} from "@salutejs/plasma-web";
+import {Modal, ModalsProvider} from "@salutejs/plasma-web";
 import './style.css';
 import axios from "axios";
 import {createAssistant, createSmartappDebugger} from '@salutejs/client';
-import {ToastForm} from "./components/ToastForm";
 import {MyHeader} from "./components/MyHeader";
 import { openDB } from 'idb';
 import { useSpatnavInitialization, useSection, getCurrentFocusedElement} from '@salutejs/spatial';
+import { IconTrash } from '@salutejs/plasma-icons';
+import {ToastForm} from "./components/ToastForm";
 
 
 
@@ -240,39 +241,12 @@ export function App() {
     const closeExpense = React.useCallback(() => {
         setIsExpenseOpen(false);
     });
-    const [dateInputExpense, setDateInputExpense] = React.useState('');
-
-    const [nameExpense, setNameExpense] = useState('');
-    const [amountExpense, setAmountExpense] = useState('');
-    const handleNameChangeExpense = (e) => {
-        setNameExpense(e.target.value);
-    };
-
-    const handleAmountChangeExpense = (e) => {
-        setAmountExpense(e.target.value);
-    };
-    const handleDateChangeExpense = (e) => {
-        setDateInputExpense(e.target.value);
-    };
-
 
     //Income
     const [isIncomeOpen, setIsIncomeOpen] = React.useState(false);
     const closeIncome = React.useCallback(() => {
         setIsIncomeOpen(false);
     });
-    const [dateInputIncome, setDateInputIncome] = React.useState('');
-    const [nameIncome, setNameIncome] = useState('');
-    const [amountIncome, setAmountIncome] = useState('');
-    const handleNameChangeIncome = (e) => {
-        setNameIncome(e.target.value);
-    };
-    const handleAmountChangeIncome = (e) => {
-        setAmountIncome(e.target.value);
-    };
-    const handleDateChangeIncome = (e) => {
-        setDateInputIncome(e.target.value);
-    };
 
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
@@ -292,13 +266,62 @@ export function App() {
     useEffect(() => {
         fetchDataAll();
     }, []);
+     const deleteExpense = async (transactionId) => {
+        try {
+            const userID = await getUserID();
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+            console.log('Delete Notes', userID);
+            console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+            await fetchDataAll();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const deleteIncome = async (transactionId) => {
+        try {
+            const userID = await getUserID();
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+            console.log('Delete Notes', userID);
+            console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+            await fetchDataAll();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const ModalElem = ({}) => {
+        useSpatnavInitialization();
+        const [modalSection] = useSection('TextFields');
 
+        const [nameExpense, setNameExpense] = useState('');
+        const [amountExpense, setAmountExpense] = useState('');
+        const [dateInputExpense, setDateInputExpense] = useState('');
 
+        const nameRef = useRef(null);
+        const amountRef = useRef(null);
+        const dateRef = useRef(null);
 
-    //Добавить расход через форму
-    //userID видно без проблем
-    //во всех остальных функциях, где используется экран тоже userID определен
-    const handleSubmitExpense = async () => {
+        useEffect(() => {
+            if (nameRef.current) {
+                nameRef.current.focus();
+            }
+        }, []);
+
+        const handleNameChangeExpense = (e) => {
+        setNameExpense(e.target.value);
+        nameRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleAmountChangeExpense = (e) => {
+        setAmountExpense(e.target.value);
+        amountRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleDateChangeExpense = (e) => {
+        setDateInputExpense(e.target.value);
+        dateRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleSubmitExpense = async () => {
         const userID = await getUserID();
         const data = {
             tag_id: 1,
@@ -318,11 +341,82 @@ export function App() {
         } catch (error) {
             console.error("There was an error creating the expense!", error, data);
         }
-    };
+        };
 
 
-    //IncomeForm
-    const handleSubmitIncome = async () => {
+
+        return (
+            <div {...modalSection}>
+            <Headline3 mb={20}>Добавить расход</Headline3>
+            <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
+            <TextField
+                ref={nameRef}
+                required={true}
+                placeholder="Объект"
+                value={nameExpense}
+                onChange={handleNameChangeExpense}
+            />
+            <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
+            <TextField
+                ref={amountRef}
+                required={true}
+                placeholder="Введите сумму"
+                type='number'
+                value={amountExpense}
+                onChange={handleAmountChangeExpense}
+            />
+            <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
+            <TextField
+                ref={dateRef}
+                required={true}
+                type="date"
+                value={dateInputExpense}
+                onChange={handleDateChangeExpense}
+                placeholder="день.месяц.год"
+            />
+            <Button className="button-bar-modal" m={10}
+                    stretch="true" text="Добавить"
+                    onClick={handleSubmitExpense}
+            />
+        </div>
+    );
+};
+
+
+    const ModalElemInc = ({}) => {
+        useSpatnavInitialization();
+        const [modalSectionInc] = useSection('TextFields');
+
+        const [dateInputIncome, setDateInputIncome] = React.useState('');
+        const [nameIncome, setNameIncome] = useState('');
+        const [amountIncome, setAmountIncome] = useState('');
+
+        const nameRef = useRef(null);
+        const amountRef = useRef(null);
+        const dateRef = useRef(null);
+
+        useEffect(() => {
+            if (nameRef.current) {
+                nameRef.current.focus();
+            }
+        }, []);
+
+        const handleNameChangeIncome = (e) => {
+        setNameIncome(e.target.value);
+        nameRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleAmountChangeIncome = (e) => {
+        setAmountIncome(e.target.value);
+        amountRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleDateChangeIncome = (e) => {
+        setDateInputIncome(e.target.value);
+        dateRef.current.focus(); // Сохраняем фокус
+        };
+
+        const handleSubmitIncome = async () => {
         const userID = await getUserID();
         const data = {
             tag_id: 1,
@@ -342,126 +436,24 @@ export function App() {
         } catch (error) {
             console.error("error creating the income", error, data);
         }
-    };
-    //Delete
-    const [isDeleteOpenExpense, setIsDeleteOpenExpense] = React.useState(false);
-    const closeDeleteExpense = React.useCallback(() => {
-        setIsDeleteOpenExpense(false);
-    });
-    const [idOperationExpense, setIdOperationExpense] = useState('');
-    const handleIdOperationExpense = (e) => {
-        setIdOperationExpense(e.target.value);
-    };
-    const handleDeleteExpense = async () => {
-        const userID = await getUserID();
-        try {
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${idOperationExpense}?user_id=${userID}`);
-        } catch (error) {
-            console.error(error);
-        }
-        setIdOperationExpense('');
-        closeDeleteExpense();
-        console.log('Delete Notes', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${idOperationExpense}?user_id=${userID}`);
-        await fetchDataAll();
-    };
-    //DeleteIncome
-    const [isDeleteOpenIncome, setIsDeleteOpenIncome] = React.useState(false);
-    const closeDeleteIncome = React.useCallback(() => {
-        setIsDeleteOpenIncome(false);
-    });
-    const [idOperationIncome, setIdOperationIncome] = useState('');
+        };
 
-    const handleIdOperationIncome = (e) => {
-        setIdOperationIncome(e.target.value);
-    };
-    const handleDeleteIncome = async () => {
-        const userID = await getUserID();
-        try {
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${idOperationIncome}?user_id=${userID}`);
-        } catch (error) {
-            console.error(error);
-        }
-        setIdOperationIncome('');
-        closeDeleteIncome();
-        console.log('Delete Notes', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${idOperationIncome}?user_id=${userID}`);
-        await fetchDataAll();
-    };
-
-    const ModalElem = ({}) => {
-        useSpatnavInitialization();
-        const [modalSection] = useSection('TextFields');
-        const ref = useRef(null);
-
-        useEffect(() => {
-            const focusable = ref.current;
-
-            if (focusable) {
-                focusable.focus();
-            }
-        }, []);
 
         return (
-            <div {...modalSection}>
-                <Headline3 mb={20}>Добавить расход</Headline3>
-                <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
-                <TextField
-                           required={true}
-                           placeholder="Объект"
-                           value={nameExpense}
-                           onChange={handleNameChangeExpense}
+            <div {...modalSectionInc}>
+            <Headline3 mb={20}>Добавить доход</Headline3>
 
-                />
-                <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
-                <TextField
-                           required={true}
-                           placeholder="Введите сумму"
-                           type='number'
-                           value={amountExpense}
-                           onChange={handleAmountChangeExpense}
-
-                />
-                <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
-                <TextField
-                           required={true}
-                           type="date"
-                           value={dateInputExpense}
-                           onChange={handleDateChangeExpense}
-                           placeholder="день.месяц.год"
-
-
-                />
-                <Button className="button-bar-modal" m={10}
-                        stretch="true" text="Добавить"
-                        onClick={handleSubmitExpense}
-                />
-            </div>
-        )
-    }
-
-    const ModalElemInc = ({}) => {
-        useSpatnavInitialization();
-        const [modalSectionInc] = useSection('TextFields');
-        const ref = useRef(null);
-
-        useEffect(() => {
-            const focusable = ref.current;
-
-            if (focusable) {
-                focusable.focus();
-            }
-        }, []);
-    return (
-        <div {...modalSectionInc}>
-            <Headline3 mb={20}>Добавить доход </Headline3>
             <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
-            <TextField placeholder="Объект"
-                       required={true}
-                       value={nameIncome}
-                       onChange={handleNameChangeIncome}/>
-            <ParagraphText1 mt={10} mb={10}>Сумма:</ParagraphText1>
             <TextField
+                ref={nameRef}
+                required={true}
+                placeholder="Объект"
+                value={nameIncome}
+                onChange={handleNameChangeIncome}
+            />
+            <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
+            <TextField
+                ref={amountRef}
                 required={true}
                 placeholder="Введите сумму"
                 type='number'
@@ -470,72 +462,20 @@ export function App() {
             />
             <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
             <TextField
+                ref={dateRef}
                 required={true}
                 type="date"
                 value={dateInputIncome}
-                placeholder="день.месяц.год"
                 onChange={handleDateChangeIncome}
+                placeholder="день.месяц.год"
             />
-            <Button stretch="true" text="Добавить" onClick={handleSubmitIncome}
-                    className="button-bar-modal"/>
-        </div>
-    )}
-
-    const ModalExpDel = ({}) => {
-        useSpatnavInitialization();
-        const [modalExpDel] = useSection('TextFields');
-        const ref = useRef(null);
-
-        useEffect(() => {
-            const focusable = ref.current;
-            if (focusable) {
-                focusable.focus();
-            }
-        }, []);
-        return (
-            <div {...modalExpDel}>
-                <Headline3 mb={20}>Удалить расход</Headline3>
-                <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
-                <TextField
-                    required={true}
-                    placeholder="Id"
-                    type='number'
-                    value={idOperationExpense}
-                    onChange={handleIdOperationExpense}
-                />
-                <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDeleteExpense}/>
+            <Button className="button-bar-modal" m={10}
+                    stretch="true" text="Добавить"
+                    onClick={handleSubmitIncome}
+            />
             </div>
-        )
-    }
-
-    const ModalIncDel = ({}) => {
-        useSpatnavInitialization();
-        const [modalIncDel] = useSection('TextFields');
-        const ref = useRef(null);
-
-        useEffect(() => {
-            const focusable = ref.current;
-            if (focusable) {
-                focusable.focus();
-            }
-        }, []);
-        return (
-            <div {...modalIncDel}>
-                <Headline3 mb={20}>Удалить доход</Headline3>
-                <ParagraphText1 mt={10} mb={10}>Введите id записи:</ParagraphText1>
-                <TextField
-                    required={true}
-                    placeholder="Id"
-                    type='number'
-                    value={idOperationIncome}
-                    onChange={handleIdOperationIncome}
-                />
-
-                <Button className="button-bar-modal" stretch="true" text="Удалить" onClick={handleDeleteIncome}/>
-
-            </div>
-        )
-    }
+    );
+};
 
     const Elements = ({}) => {
         useSpatnavInitialization();
@@ -543,12 +483,24 @@ export function App() {
 
         const ref = useRef(null);
 
-        useEffect(() => {
-            const focusable = ref.current;
-
-            if (focusable) {
-                focusable.focus();
+        const handleKeyDown = (event) => {
+            if (event.code === 'ArrowDown' || event.code === 'ArrowUp') {
+                const focusedElement = getCurrentFocusedElement();
+                if (focusedElement) {
+                    focusedElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'nearest'
+                    });
+                }
             }
+        };
+
+        useEffect(() => {
+            window.addEventListener('keydown', handleKeyDown);
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+            };
         }, []);
         return (
             <div {...sectionProps}>
@@ -556,21 +508,91 @@ export function App() {
                 <div className="buttons-bar" tabIndex={-1}>
                     <Button className="button-bar-button" size="l" pin="circle-circle"
                             text="Добавить расход" onClick={() => setIsExpenseOpen(true)}/>
-
-
                     <Button className="button-bar-button" size="l" pin="circle-circle"
                             text="Добавить доход" onClick={() => setIsIncomeOpen(true)}/>
+                    <ToastForm />
+                </div>
 
+                <div className="cards-row">
+                    <Card className="cards-row-card" style={{ maxHeight: '22.5rem' }} tabIndex={-1}>
+    <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>} />
+    <CardContent className="scrollable-content" compact>
+        {expenseTransactions.slice().reverse().map((transaction, index1) => (
+            <CellListItem
+                key={index1}
+                tabIndex={index1 + 1} // Индексы начинаются с 1
+                content={
+                    <TextBox>
+                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                        <div className="row-notes">
+                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
+                        </div>
+                    </TextBox>
+                }
+                contentRight={
+                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
+                                  onClick={() => deleteExpense(transaction.transaction_id)}>
+                        <IconTrash size="xs" color="inherit" />
+                    </ActionButton>
+                }
+            />
+        ))}
+    </CardContent>
+</Card>
+<Card className="cards-row-card" style={{ maxHeight: '22.5rem' }} tabIndex={-1}>
+    <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>} />
+    <CardContent className="scrollable-content" compact>
+        {incomeTransactions.slice().reverse().map((transaction, index2) => (
+            <CellListItem
+                key={index2}
+                tabIndex={expenseTransactions.length + index2 + 1} // Индексы начинаются после последнего элемента первого списка
+                content={
+                    <TextBox>
+                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                        <div className="row-notes">
+                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
+                        </div>
+                    </TextBox>
+                }
+                contentRight={
+                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
+                                  onClick={() => deleteIncome(transaction.transaction_id)}>
+                        <IconTrash size="xs" color="inherit" />
+                    </ActionButton>
+                }
+            />
+        ))}
+    </CardContent>
+</Card>
 
+                    <Card className="cards-row-card sum-card">
+                        <CardContent compact>
+                            <Cell
+                                content={<TextBoxBigTitle>Общая сумма расходов: </TextBoxBigTitle>}
+                            />
+                            <Cell
+                                content={<TextBoxBiggerTitle><Price currency="rub"
+                                                                    stroke={false}>{totalExpense}</Price></TextBoxBiggerTitle>}
 
-                    <Button className="button-bar-button" size="l" pin="circle-circle"
-                            text="Удалить расход" onClick={() => setIsDeleteOpenExpense(true)}/>
+                                alignRight="center"
+                            />
+                        </CardContent>
+                        <CardContent compact>
+                            <Cell
+                                content={<TextBoxBigTitle>Общая сумма доходов: </TextBoxBigTitle>}
+                            />
+                            <Cell
+                                content={<TextBoxBiggerTitle><Price currency="rub"
+                                                                    stroke={false}>{totalIncome}</Price></TextBoxBiggerTitle>}
 
-
-
-                    <Button className="button-bar-button" size="l" pin="circle-circle"
-                            text="Удалить доход" onClick={() => setIsDeleteOpenIncome(true)}/>
-                    <ToastForm/>
+                                alignRight="center"
+                            />
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
@@ -601,96 +623,23 @@ export function App() {
     return (
         <div className="App">
             <div className="main-app">
-                <ToastProvider>
-                    <div className="my-header">
-                        <MyHeader/>
-                    </div>
-                    <Elements></Elements>
 
-                    <Modal className="scrollable-content-modal" isOpen={isExpenseOpen} onClose={closeExpense}>
-                        <ModalElem></ModalElem>
-                    </Modal>
-                    <Modal className="scrollable-content-modal" isOpen={isIncomeOpen} onClose={closeIncome}>
-                        <ModalElemInc></ModalElemInc>
-                    </Modal>
-                    <Modal className="scrollable-content-modal" isOpen={isDeleteOpenExpense} onClose={closeDeleteExpense}>
-                        <ModalExpDel></ModalExpDel>
-                    </Modal>
-                    <Modal className="scrollable-content-modal" isOpen={isDeleteOpenIncome} onClose={closeDeleteIncome}>
-                        <ModalIncDel></ModalIncDel>
-                    </Modal>
 
-                    <div className="cards-row">
-                        <Card className="cards-row-card" style={{maxHeight: '22.5rem'}}>
-                            <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>}/>
-                            <CardContent className="scrollable-content" compact>
-                                {expenseTransactions.slice().reverse().map((transaction) => (
-                                    <CellListItem
-                                        key={transaction.transaction_id}
-                                        content={
-                                            <TextBox>
-                                                <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                                                <div className="row-notes">
-                                                    <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Сумма: <Price currency="rub"
-                                                                                   stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                </div>
-                                            </TextBox>
-                                        }
-                                    />
-                                ))}
-                            </CardContent>
-                        </Card>
-                        <Card className="cards-row-card" style={{maxHeight: '22.5rem'}}>
-                            <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>}/>
-                            <CardContent className="scrollable-content" compact>
-                                {incomeTransactions.slice().reverse().map((transaction, index) => (
-                                    <CellListItem
-                                        key={index}
-                                        content={
-                                            <TextBox>
-                                                <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                                                <div className="row-notes">
-                                                    <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                                                    <TextBoxSubTitle>Сумма: <Price currency="rub"
-                                                                                   stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                                                </div>
+                <div className="my-header">
+                    <MyHeader/>
+                </div>
+                <Elements></Elements>
 
-                                            </TextBox>
-                                        }
-                                    />
-                                ))}
-                            </CardContent>
-                        </Card>
-                        <Card className="cards-row-card sum-card">
-                            <CardContent compact>
-                                <Cell
-                                    content={<TextBoxBigTitle>Общая сумма расходов: </TextBoxBigTitle>}
-                                />
-                                <Cell
-                                    content={<TextBoxBiggerTitle><Price currency="rub"
-                                                                        stroke={false}>{totalExpense}</Price></TextBoxBiggerTitle>}
+                <Modal className="scrollable-content-modal" closeOnEsc={true} showCloseButton={false}
+                       isOpen={isExpenseOpen} onClose={closeExpense}>
+                    <ModalElem></ModalElem>
+                </Modal>
+                <Modal className="scrollable-content-modal" closeOnEsc={true} showCloseButton={false}
+                       isOpen={isIncomeOpen} onClose={closeIncome}>
+                    <ModalElemInc></ModalElemInc>
+                </Modal>
 
-                                    alignRight="center"
-                                />
-                            </CardContent>
-                            <CardContent compact>
-                                <Cell
-                                    content={<TextBoxBigTitle>Общая сумма доходов: </TextBoxBigTitle>}
-                                />
-                                <Cell
-                                    content={<TextBoxBiggerTitle><Price currency="rub"
-                                                                        stroke={false}>{totalIncome}</Price></TextBoxBiggerTitle>}
 
-                                    alignRight="center"
-                                />
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                </ToastProvider>
             </div>
         </div>
     );

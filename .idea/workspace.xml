@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="92cffba9-deea-4bab-bc81-b0a2e141c691" name="Changes" comment="new commit" />
+    <list default="true" id="92cffba9-deea-4bab-bc81-b0a2e141c691" name="Changes" comment="new commit">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ToastForm.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ToastForm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/style.css" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -51,8 +57,8 @@
       <recent name="$PROJECT_DIR$/public" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/frontend/src/components" />
       <recent name="$PROJECT_DIR$/frontend/src" />
+      <recent name="$PROJECT_DIR$/frontend/src/components" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -81,6 +87,8 @@
       <workItem from="1719047340661" duration="7056000" />
       <workItem from="1719063858782" duration="40579000" />
       <workItem from="1719256821231" duration="4000" />
+      <workItem from="1719256831196" duration="6671000" />
+      <workItem from="1719339965153" duration="3586000" />
     </task>
     <servers />
   </component>
