@@ -296,6 +296,8 @@ export function App() {
         const [amountExpense, setAmountExpense] = useState('');
         const [dateInputExpense, setDateInputExpense] = useState('');
 
+        const [errors, setErrors] = useState({ name: '', amount: '', date: '' });
+
         const nameRef = useRef(null);
         const amountRef = useRef(null);
         const dateRef = useRef(null);
@@ -305,6 +307,27 @@ export function App() {
                 nameRef.current.focus();
             }
         }, []);
+
+        const validateFields = () => {
+        let valid = true;
+        let newErrors = { name: '', amount: '', date: '' };
+
+        if (!nameExpense) {
+            newErrors.name = 'Название обязательно для заполнения';
+            valid = false;
+        }
+        if (!amountExpense) {
+            newErrors.amount = 'Стоимость обязательна для заполнения';
+            valid = false;
+        }
+        if (!dateInputExpense) {
+            newErrors.date = 'Дата обязательна для заполнения';
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        return valid;
+        };
 
         const handleNameChangeExpense = (e) => {
         setNameExpense(e.target.value);
@@ -322,6 +345,9 @@ export function App() {
         };
 
         const handleSubmitExpense = async () => {
+        if (!validateFields()) {
+            return;
+        }
         const userID = await getUserID();
         const data = {
             tag_id: 1,
@@ -348,13 +374,15 @@ export function App() {
         return (
             <div {...modalSection}>
             <Headline3 mb={20}>Добавить расход</Headline3>
-            <ParagraphText1 mt={10} mb={10}>Название</ParagraphText1>
+            <ParagraphText1 mt={10} mb={10}>Название:</ParagraphText1>
             <TextField
                 ref={nameRef}
                 required={true}
                 placeholder="Объект"
                 value={nameExpense}
                 onChange={handleNameChangeExpense}
+                error={errors.name}
+                helperText={errors.name}
             />
             <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
             <TextField
@@ -364,6 +392,8 @@ export function App() {
                 type='number'
                 value={amountExpense}
                 onChange={handleAmountChangeExpense}
+                error={errors.amount}
+                helperText={errors.amount}
             />
             <ParagraphText1 mt={10} mb={10}>Дата покупки:</ParagraphText1>
             <TextField
@@ -373,11 +403,20 @@ export function App() {
                 value={dateInputExpense}
                 onChange={handleDateChangeExpense}
                 placeholder="день.месяц.год"
+                error={errors.date}
+                helperText={errors.date}
             />
-            <Button className="button-bar-modal" m={10}
-                    stretch="true" text="Добавить"
+            <Button className="button-bar-modal-1" m={10}
+                    text="Добавить" mr={10}
                     onClick={handleSubmitExpense}
+                    stretch="true"
             />
+            <Button className="button-bar-modal-2" m={5}
+                    text="Закрыть"
+                    onClick={() => setIsExpenseOpen(false)}
+                    stretch="true"
+            />
+            
         </div>
     );
 };
@@ -390,6 +429,9 @@ export function App() {
         const [dateInputIncome, setDateInputIncome] = React.useState('');
         const [nameIncome, setNameIncome] = useState('');
         const [amountIncome, setAmountIncome] = useState('');
+
+        const [errors, setErrors] = useState({ name: '', amount: '', date: '' });
+
 
         const nameRef = useRef(null);
         const amountRef = useRef(null);
@@ -416,7 +458,34 @@ export function App() {
         dateRef.current.focus(); // Сохраняем фокус
         };
 
+        const validateFields = () => {
+        let valid = true;
+        let newErrors = { name: '', amount: '', date: '' };
+
+        if (!nameIncome) {
+            newErrors.name = 'Название обязательно для заполнения';
+            valid = false;
+        }
+        if (!amountIncome) {
+            newErrors.amount = 'Стоимость обязательна для заполнения';
+            valid = false;
+        }
+        if (!dateInputIncome) {
+            newErrors.date = 'Дата обязательна для заполнения';
+            valid = false;
+        }
+
+        setErrors(newErrors);
+        return valid;
+        };
+
+
+
         const handleSubmitIncome = async () => {
+        if (!validateFields()) {
+            return;
+        }
+
         const userID = await getUserID();
         const data = {
             tag_id: 1,
@@ -424,6 +493,7 @@ export function App() {
             date: dateInputIncome,
             amount: parseFloat(amountIncome)
         };
+
         try {
             await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
             closeIncome();
@@ -450,6 +520,9 @@ export function App() {
                 placeholder="Объект"
                 value={nameIncome}
                 onChange={handleNameChangeIncome}
+                error={errors.name}
+                helperText={errors.name}
+
             />
             <ParagraphText1 mt={10} mb={10}>Стоимость:</ParagraphText1>
             <TextField
@@ -459,6 +532,9 @@ export function App() {
                 type='number'
                 value={amountIncome}
                 onChange={handleAmountChangeIncome}
+                error={errors.amount}
+                helperText={errors.amount}
+
             />
             <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
             <TextField
@@ -468,10 +544,18 @@ export function App() {
                 value={dateInputIncome}
                 onChange={handleDateChangeIncome}
                 placeholder="день.месяц.год"
+                error={errors.date}
+                helperText={errors.date}
+
             />
-            <Button className="button-bar-modal" m={10}
+            <Button className="button-bar-modal-1" m={10}
                     stretch="true" text="Добавить"
                     onClick={handleSubmitIncome}
+            />
+            <Button className="button-bar-modal-2" m={5}
+                    text="Закрыть"
+                    onClick={() => setIsIncomeOpen(false)}
+                    stretch="true"
             />
             </div>
     );
@@ -623,13 +707,10 @@ export function App() {
     return (
         <div className="App">
             <div className="main-app">
-
-
                 <div className="my-header">
                     <MyHeader/>
                 </div>
                 <Elements></Elements>
-
                 <Modal className="scrollable-content-modal" closeOnEsc={true} showCloseButton={false}
                        isOpen={isExpenseOpen} onClose={closeExpense}>
                     <ModalElem></ModalElem>
@@ -638,8 +719,6 @@ export function App() {
                        isOpen={isIncomeOpen} onClose={closeIncome}>
                     <ModalElemInc></ModalElemInc>
                 </Modal>
-
-
             </div>
         </div>
     );

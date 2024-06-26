@@ -46,6 +46,9 @@ body {
     justify-content: center;
     gap: 0.75rem;
 }
+.cards-row{
+        margin-bottom: 30%;
+}
 
 
 .cards-row-card {
@@ -57,8 +60,13 @@ body {
     max-width: 500px;
 }
 
-.button-bar-modal{
+.button-bar-modal-1{
     margin-top: 40px;
+
+}
+.button-bar-modal-2{
+    margin-top: 10px;
+
 }
 .row-notes{
     display: flex;
@@ -78,6 +86,10 @@ body {
         flex-direction: column;
         align-items: center;
         width: 98%;
+        
+    }
+    .cards-row{
+        margin-bottom: 30%;
     }
 
     .button-bar-button, .cards-row-card {
@@ -93,6 +105,10 @@ body {
     body{
     width: 98%;
     display: block;
+    }
+    .scrollable-content, .scrollable-content-modal {
+        max-height: 90%;
+        overflow-y: auto;
     }
 }
 
@@ -118,8 +134,4 @@ body {
 .name-list {
     margin-left: 1rem;
 }
-.intro-screen{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+
