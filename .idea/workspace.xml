@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="92cffba9-deea-4bab-bc81-b0a2e141c691" name="Changes" comment="new commit">
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" />
-    </list>
+    <list default="true" id="92cffba9-deea-4bab-bc81-b0a2e141c691" name="Changes" comment="new commit" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,7 +85,7 @@
       <workItem from="1719339965153" duration="12890000" />
       <workItem from="1719403240424" duration="5168000" />
       <workItem from="1719429602086" duration="550000" />
-      <workItem from="1719480834457" duration="5405000" />
+      <workItem from="1719480834457" duration="6078000" />
     </task>
     <servers />
   </component>

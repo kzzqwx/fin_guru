@@ -138,7 +138,7 @@ export function App() {
     const delete_expense = async (action) => {
         const user_ID = userIDRef.current;
         const transactionId = action.transaction_id;
-        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
         console.log('delete expense', user_ID);
         console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
@@ -380,7 +380,7 @@ export function App() {
         };
         try {
             await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`, data);
-            closeExpense();
+            setIsExpenseOpen(false);
             console.log('Submit Expense', user_ID);
             console.log(data);
             setDateInputExpense('');
@@ -520,7 +520,7 @@ export function App() {
             await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_ID}`, data);
             console.log('Submit Income', user_ID);
             console.log(data);
-            closeIncome();
+            setIsIncomeOpen(false);
             setDateInputIncome('');
             setNameIncome('');
             setAmountIncome('');
