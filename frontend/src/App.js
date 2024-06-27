@@ -133,7 +133,7 @@ export function App() {
             amount: parseFloat(action.amount)
         };
         await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
-        fetchDataAll();
+        await fetchDataAll();
         console.log('add expense', `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`);
         console.log(data);
     };
@@ -150,10 +150,11 @@ export function App() {
             throw new Error(`Tag with label "${action.tag_id}" not found`);
         }
         await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
-        fetchDataAll(); // Обновляем списки транзакций после успешного добавления
+        await fetchDataAll(); // Обновляем списки транзакций после успешного добавления
         console.log('add income', userID);
         console.log(data);
     };
+
     const delete_expense = async (action) => {
         const userID = await getUserID();
         const transactionId = action.transaction_id;
@@ -235,18 +236,65 @@ export function App() {
 
     }, []);
 
+    //pages
+    const [currentPage, setCurrentPage] = useState('main');
 
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
-    const closeExpense = React.useCallback(() => {
+
+    const openExpense = () => {
+        setIsExpenseOpen(true);
+        window.history.pushState({ page: 'expense' }, '');
+        setCurrentPage('expense');
+    };
+    const closeExpense = () => {
         setIsExpenseOpen(false);
-    });
+        if (currentPage === 'expense') {
+            window.history.back();
+        }
+        setCurrentPage('main');
+    };
 
     //Income
     const [isIncomeOpen, setIsIncomeOpen] = React.useState(false);
-    const closeIncome = React.useCallback(() => {
+    const openIncome = () => {
+        setIsIncomeOpen(true);
+        window.history.pushState({ page: 'income' }, '');
+        setCurrentPage('income');
+    };
+
+    const closeIncome = () => {
         setIsIncomeOpen(false);
-    });
+        if (currentPage === 'income') {
+            window.history.back();
+        }
+        setCurrentPage('main');
+    };
+
+    useEffect(() => {
+        window.history.replaceState({ page: 'main' }, '');
+        window.onpopstate = ({ state }) => {
+            if (state.page === 'main') {
+                setIsExpenseOpen(false);
+                setIsIncomeOpen(false);
+                setCurrentPage('main');
+            } else if (state.page === 'expense') {
+                setIsExpenseOpen(true);
+                setIsIncomeOpen(false);
+                setCurrentPage('expense');
+            } else if (state.page === 'income') {
+                setIsIncomeOpen(true);
+                setIsExpenseOpen(false);
+                setCurrentPage('income');
+            }
+        };
+    }, []);
+
+
+
+
+    
+
 
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
@@ -360,10 +408,10 @@ export function App() {
             closeExpense();
             console.log('Submit Expense', userID);
             console.log(data);
-            await fetchDataAll();
             setDateInputExpense('');
             setNameExpense('');
             setAmountExpense('');
+            await fetchDataAll();
         } catch (error) {
             console.error("There was an error creating the expense!", error, data);
         }
@@ -499,10 +547,10 @@ export function App() {
             closeIncome();
             console.log('Submit Income', userID);
             console.log(data);
-            await fetchDataAll();
             setDateInputIncome('');
             setNameIncome('');
             setAmountIncome('');
+            await fetchDataAll();
         } catch (error) {
             console.error("error creating the income", error, data);
         }
@@ -591,9 +639,9 @@ export function App() {
 
                 <div className="buttons-bar" tabIndex={-1}>
                     <Button className="button-bar-button" size="l" pin="circle-circle"
-                            text="Добавить расход" onClick={() => setIsExpenseOpen(true)}/>
+                            text="Добавить расход" onClick={openExpense}/>
                     <Button className="button-bar-button" size="l" pin="circle-circle"
-                            text="Добавить доход" onClick={() => setIsIncomeOpen(true)}/>
+                            text="Добавить доход" onClick={openIncome}/>
                     <ToastForm />
                 </div>
 
@@ -711,11 +759,11 @@ export function App() {
                     <MyHeader/>
                 </div>
                 <Elements></Elements>
-                <Modal className="scrollable-content-modal" closeOnEsc={true} showCloseButton={false}
+                <Modal closeOnEsc={false} showCloseButton={false}
                        isOpen={isExpenseOpen} onClose={closeExpense}>
                     <ModalElem></ModalElem>
                 </Modal>
-                <Modal className="scrollable-content-modal" closeOnEsc={true} showCloseButton={false}
+                <Modal closeOnEsc={false} showCloseButton={false}
                        isOpen={isIncomeOpen} onClose={closeIncome}>
                     <ModalElemInc></ModalElemInc>
                 </Modal>
