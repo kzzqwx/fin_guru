@@ -21,7 +21,6 @@ import './style.css';
 import axios from "axios";
 import {createAssistant, createSmartappDebugger} from '@salutejs/client';
 import {MyHeader} from "./components/MyHeader";
-import { openDB } from 'idb';
 import { useSpatnavInitialization, useSection, getCurrentFocusedElement} from '@salutejs/spatial';
 import { IconTrash } from '@salutejs/plasma-icons';
 import {ToastForm} from "./components/ToastForm";
@@ -104,24 +103,23 @@ export function App() {
         return `${year}-${formattedMonth}-${formattedDay}`;
     };
 
-    //Используем установленное  userID
-    //Однако, он говорит, что userID - не определен
+
     const add_expense = async (action) => {
-        //const userID = await getUserID(); // Get userID from IndexedDB
+        const user_ID = userIDRef.current;
         const data = {
             tag_id: 1,
             name: capitalizeFirstLetter(action.name),
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
         };
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
+        await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`, data);
         await fetchDataAll();
-        console.log('add expense', `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`);
+        console.log('add expense', `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`);
         console.log(data);
     };
 
     const add_income = async (action) => {
-        //const userID = await getUserID();
+        const user_ID = userIDRef.current;
         const data = {
             tag_id: 1,
             name: capitalizeFirstLetter(action.name),
@@ -131,28 +129,28 @@ export function App() {
         if (action.tag_id === null) {
             throw new Error(`Tag with label "${action.tag_id}" not found`);
         }
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
-        await fetchDataAll(); // Обновляем списки транзакций после успешного добавления
-        console.log('add income', userID);
+        await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_ID}`, data);
+        await fetchDataAll();
+        console.log('add income', user_ID);
         console.log(data);
     };
 
     const delete_expense = async (action) => {
-        //const userID = await getUserID();
+        const user_ID = userIDRef.current;
         const transactionId = action.transaction_id;
         await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
         await fetchDataAll();
-        console.log('delete expense', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+        console.log('delete expense', user_ID);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
     };
 
     const delete_income = async (action) => {
-        //const userID = await getUserID();
+        const user_ID = userIDRef.current;
         const transactionId = action.transaction_id;
-        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
         console.log('delete income', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
     };
 
 
@@ -162,8 +160,6 @@ export function App() {
         if (action) {
             switch (action.type) {
                 case 'initialize_user':
-                    //localStorage.setItem("userID", removeSpecialCharacters(action.user_id));
-                    //saveUserID(removeSpecialCharacters(action.user_id));
                     return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
@@ -218,10 +214,7 @@ export function App() {
 
     }, []);
 
-    //pages
     const [currentPage, setCurrentPage] = useState('main');
-
-    //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
 
     const openExpense = () => {
@@ -262,46 +255,46 @@ export function App() {
                 setCurrentPage('main');
             } else if (state.page === 'expense') {
                 setIsExpenseOpen(true);
-                setIsIncomeOpen(false);
+                //setIsIncomeOpen(false);
                 setCurrentPage('expense');
             } else if (state.page === 'income') {
                 setIsIncomeOpen(true);
-                setIsExpenseOpen(false);
+                //setIsExpenseOpen(false);
                 setCurrentPage('income');
             }
         };
     }, []);
 
-
-
-
-    
-
-
     //Connect backend
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
+
     const fetchDataAll = async () => {
-        //const userID = await getUserID(); // Get userID from IndexedDB
-        axios.get('http://45.147.177.32:8000/api/v1/finance', {
-            params: { user_id: userID }
-        }).then(response => {
+        const user_ID = userIDRef.current;
+        axios.get(`http://45.147.177.32:8000/api/v1/finance?user_id=${user_ID}`).then(response => {
             setExpenseTransactions(response.data.transactions.expense);
             setIncomeTransactions(response.data.transactions.income);
+
         }).catch(error => {
             console.error('Error fetching data:', error);
         });
+        console.log('initialize_user 1 ref', userIDRef.current);
+        console.log('user_ID', user_ID);
     };
 
     useEffect(() => {
-        fetchDataAll();
-    }, []);
+    if (userID) {
+      fetchDataAll();
+    }
+    }, [userID]);
+
+
      const deleteExpense = async (transactionId) => {
         try {
-            //const userID = await getUserID();
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+            const user_ID = userIDRef.current;
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
             console.log('Delete Notes', userID);
-            console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
+            console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
         } catch (error) {
             console.error(error);
@@ -309,10 +302,10 @@ export function App() {
     };
     const deleteIncome = async (transactionId) => {
         try {
-            //const userID = await getUserID();
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
-            console.log('Delete Notes', userID);
-            console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
+            const user_ID = userIDRef.current;
+            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+            console.log('Delete Notes', user_ID);
+            console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
         } catch (error) {
             console.error(error);
@@ -378,7 +371,7 @@ export function App() {
         if (!validateFields()) {
             return;
         }
-        //const userID = await getUserID();
+        const user_ID = userIDRef.current;
         const data = {
             tag_id: 1,
             name: nameExpense,
@@ -386,9 +379,9 @@ export function App() {
             amount: parseFloat(amountExpense)
         };
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${userID}`, data);
+            await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`, data);
             closeExpense();
-            console.log('Submit Expense', userID);
+            console.log('Submit Expense', user_ID);
             console.log(data);
             setDateInputExpense('');
             setNameExpense('');
@@ -515,8 +508,7 @@ export function App() {
         if (!validateFields()) {
             return;
         }
-
-        //const userID = await getUserID();
+        const user_ID = userIDRef.current;
         const data = {
             tag_id: 1,
             name: nameIncome,
@@ -525,13 +517,14 @@ export function App() {
         };
 
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${userID}`, data);
-            closeIncome();
-            console.log('Submit Income', userID);
+            await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_ID}`, data);
+            console.log('Submit Income', user_ID);
             console.log(data);
+            closeIncome();
             setDateInputIncome('');
             setNameIncome('');
             setAmountIncome('');
+            await fetchDataAll();
         } catch (error) {
             console.error("error creating the income", error, data);
         }
