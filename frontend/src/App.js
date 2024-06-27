@@ -30,40 +30,22 @@ import {ToastForm} from "./components/ToastForm";
 
 export function App() {
 
-    const initDB = async () => {
-        const db = await openDB('myDatabase', 1, {
-            upgrade(db) {
-                db.createObjectStore('keyval');
-            },
-        });
-        return db;
+    const [userID, _setUserID] = useState('');
+    const userIDRef = useRef(userID);
+
+    const setUserID = (data) => {
+        userIDRef.current = data;
+        _setUserID(data);
     };
-
-    const saveUserID = async (userID) => {
-        const db = await initDB();
-        const tx = db.transaction('keyval', 'readwrite');
-        const store = tx.objectStore('keyval');
-        await store.put(userID, 'userID');
-        await tx.done;
-    };
-
-    const getUserID = async () => {
-        const db = await initDB();
-        const tx = db.transaction('keyval', 'readonly');
-        const store = tx.objectStore('keyval');
-        const userID = await store.get('userID');
-        await tx.done;
-        return userID;
-    };
-
-
-
 
     function removeSpecialCharacters(str) {
         return str.replace(/[^a-zA-Z0-9]/g);
     }
     //Установили значение для userID
     function initialize_user(action){
+        const sanitizedUserId = removeSpecialCharacters(action.user_id);
+        setUserID(sanitizedUserId);
+        console.log('User ID initialized:', sanitizedUserId);
         return action.user_id;
     }
 
@@ -125,7 +107,7 @@ export function App() {
     //Используем установленное  userID
     //Однако, он говорит, что userID - не определен
     const add_expense = async (action) => {
-        const userID = await getUserID(); // Get userID from IndexedDB
+        //const userID = await getUserID(); // Get userID from IndexedDB
         const data = {
             tag_id: 1,
             name: capitalizeFirstLetter(action.name),
@@ -139,7 +121,7 @@ export function App() {
     };
 
     const add_income = async (action) => {
-        const userID = await getUserID();
+        //const userID = await getUserID();
         const data = {
             tag_id: 1,
             name: capitalizeFirstLetter(action.name),
@@ -156,7 +138,7 @@ export function App() {
     };
 
     const delete_expense = async (action) => {
-        const userID = await getUserID();
+        //const userID = await getUserID();
         const transactionId = action.transaction_id;
         await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
         await fetchDataAll();
@@ -165,7 +147,7 @@ export function App() {
     };
 
     const delete_income = async (action) => {
-        const userID = await getUserID();
+        //const userID = await getUserID();
         const transactionId = action.transaction_id;
         await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
         await fetchDataAll();
@@ -181,7 +163,7 @@ export function App() {
             switch (action.type) {
                 case 'initialize_user':
                     //localStorage.setItem("userID", removeSpecialCharacters(action.user_id));
-                    saveUserID(removeSpecialCharacters(action.user_id));
+                    //saveUserID(removeSpecialCharacters(action.user_id));
                     return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
@@ -300,7 +282,7 @@ export function App() {
     const [expenseTransactions, setExpenseTransactions] = useState([]);
     const [incomeTransactions, setIncomeTransactions] = useState([]);
     const fetchDataAll = async () => {
-        const userID = await getUserID(); // Get userID from IndexedDB
+        //const userID = await getUserID(); // Get userID from IndexedDB
         axios.get('http://45.147.177.32:8000/api/v1/finance', {
             params: { user_id: userID }
         }).then(response => {
@@ -316,7 +298,7 @@ export function App() {
     }, []);
      const deleteExpense = async (transactionId) => {
         try {
-            const userID = await getUserID();
+            //const userID = await getUserID();
             await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
             console.log('Delete Notes', userID);
             console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${userID}`);
@@ -327,7 +309,7 @@ export function App() {
     };
     const deleteIncome = async (transactionId) => {
         try {
-            const userID = await getUserID();
+            //const userID = await getUserID();
             await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
             console.log('Delete Notes', userID);
             console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${userID}`);
@@ -396,7 +378,7 @@ export function App() {
         if (!validateFields()) {
             return;
         }
-        const userID = await getUserID();
+        //const userID = await getUserID();
         const data = {
             tag_id: 1,
             name: nameExpense,
@@ -534,7 +516,7 @@ export function App() {
             return;
         }
 
-        const userID = await getUserID();
+        //const userID = await getUserID();
         const data = {
             tag_id: 1,
             name: nameIncome,
@@ -550,7 +532,6 @@ export function App() {
             setDateInputIncome('');
             setNameIncome('');
             setAmountIncome('');
-            await fetchDataAll();
         } catch (error) {
             console.error("error creating the income", error, data);
         }
