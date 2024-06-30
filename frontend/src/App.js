@@ -176,46 +176,46 @@ export function App() {
         }
     };
 
-    useEffect(() => {
-        console.log('componentDidMount');
-        assistant = initializeAssistant(() => getStateForAssistant());
-
-        assistant.on('data', (event) => {
-                console.log('assistant.on(data)', event);
-                if (event.type === 'character') {
-                    console.log(`assistant.on(data): character: "${event?.character?.id}"`);
-                }
-                else if (event.type === 'insets') {
-                    console.log('assistant.on(data): insets');
-                } else {
-                    const { action } = event;
-                    dispatchAssistantAction(action);
-                }
-            }
-
-        );
-
-        assistant.on('start', (event) => {
-            let initialData = assistant.getInitialData();
-            console.log(`assistant.on(start)`, event, initialData);
-        });
-
-        assistant.on('command', (event) => {
-            console.log(`assistant.on(command)`, event);
-        });
-
-        assistant.on('error', (event) => {
-            console.log(`assistant.on(error)`, event);
-        });
-
-        assistant.on('tts', (event) => {
-            console.log(`assistant.on(tts)`, event);
-        });
-
-
-    }, []);
-
-    const [currentPage, setCurrentPage] = useState('main');
+    // useEffect(() => {
+    //     console.log('componentDidMount');
+    //     assistant = initializeAssistant(() => getStateForAssistant());
+    //
+    //     assistant.on('data', (event) => {
+    //             console.log('assistant.on(data)', event);
+    //             if (event.type === 'character') {
+    //                 console.log(`assistant.on(data): character: "${event?.character?.id}"`);
+    //             }
+    //             else if (event.type === 'insets') {
+    //                 console.log('assistant.on(data): insets');
+    //             } else {
+    //                 const { action } = event;
+    //                 dispatchAssistantAction(action);
+    //             }
+    //         }
+    //
+    //     );
+    //
+    //     assistant.on('start', (event) => {
+    //         let initialData = assistant.getInitialData();
+    //         console.log(`assistant.on(start)`, event, initialData);
+    //     });
+    //
+    //     assistant.on('command', (event) => {
+    //         console.log(`assistant.on(command)`, event);
+    //     });
+    //
+    //     assistant.on('error', (event) => {
+    //         console.log(`assistant.on(error)`, event);
+    //     });
+    //
+    //     assistant.on('tts', (event) => {
+    //         console.log(`assistant.on(tts)`, event);
+    //     });
+    //
+    //
+    // }, []);
+    //
+        const [currentPage, setCurrentPage] = useState('main');
 
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
