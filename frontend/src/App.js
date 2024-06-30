@@ -175,6 +175,7 @@ export function App() {
             }
         }
     };
+
     useEffect(() => {
         console.log('componentDidMount');
         assistant = initializeAssistant(() => getStateForAssistant());
@@ -215,6 +216,8 @@ export function App() {
     }, []);
 
     const [currentPage, setCurrentPage] = useState('main');
+
+    //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
 
     const openExpense = () => {
@@ -335,14 +338,24 @@ export function App() {
         let valid = true;
         let newErrors = { name: '', amount: '', date: '' };
 
-        if (!nameExpense) {
-            newErrors.name = 'Название обязательно для заполнения';
+        // Проверка на отрицательное значение или ноль
+        if (parseFloat(amountExpense) <= 0) {
+            newErrors.amount = 'Стоимость должна быть больше нуля';
             valid = false;
         }
+
+        // Проверка на пустое значение
         if (!amountExpense) {
             newErrors.amount = 'Стоимость обязательна для заполнения';
             valid = false;
         }
+        if (!nameExpense) {
+            newErrors.name = 'Название обязательно для заполнения';
+            valid = false;
+        }
+
+
+    
         if (!dateInputExpense) {
             newErrors.date = 'Дата обязательна для заполнения';
             valid = false;
@@ -360,7 +373,8 @@ export function App() {
         const handleAmountChangeExpense = (e) => {
         setAmountExpense(e.target.value);
         amountRef.current.focus(); // Сохраняем фокус
-        };
+    };
+
 
         const handleDateChangeExpense = (e) => {
         setDateInputExpense(e.target.value);
@@ -485,14 +499,23 @@ export function App() {
         let valid = true;
         let newErrors = { name: '', amount: '', date: '' };
 
-        if (!nameIncome) {
-            newErrors.name = 'Название обязательно для заполнения';
+        // Проверка на отрицательное значение или ноль
+        if (parseFloat(amountIncome) <= 0) {
+            newErrors.amount = 'Стоимость должна быть больше нуля';
             valid = false;
         }
+
+        // Проверка на пустое значение
         if (!amountIncome) {
             newErrors.amount = 'Стоимость обязательна для заполнения';
             valid = false;
         }
+
+        if (!nameIncome) {
+            newErrors.name = 'Название обязательно для заполнения';
+            valid = false;
+        }
+    
         if (!dateInputIncome) {
             newErrors.date = 'Дата обязательна для заполнения';
             valid = false;
@@ -556,7 +579,6 @@ export function App() {
                 onChange={handleAmountChangeIncome}
                 error={errors.amount}
                 helperText={errors.amount}
-
             />
             <ParagraphText1 mt={10} mb={10}>Дата зачисления:</ParagraphText1>
             <TextField
@@ -602,15 +624,15 @@ export function App() {
             }
         };
 
-        useEffect(() => {
-            window.addEventListener('keydown', handleKeyDown);
-            return () => {
-                window.removeEventListener('keydown', handleKeyDown);
-            };
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
         }, []);
+
         return (
             <div {...sectionProps}>
-
                 <div className="buttons-bar" tabIndex={-1}>
                     <Button className="button-bar-button" size="l" pin="circle-circle"
                             text="Добавить расход" onClick={openExpense}/>
@@ -618,72 +640,72 @@ export function App() {
                             text="Добавить доход" onClick={openIncome}/>
                     <ToastForm />
                 </div>
-
                 <div className="cards-row">
                     <Card className="cards-row-card" style={{ maxHeight: '22.5rem' }} tabIndex={-1}>
-    <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>} />
-    <CardContent className="scrollable-content" compact>
-        {expenseTransactions.slice().reverse().map((transaction, index1) => (
-            <CellListItem
-                key={index1}
-                tabIndex={index1 + 1} // Индексы начинаются с 1
-                content={
-                    <TextBox>
-                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                        <div className="row-notes">
-                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                        </div>
-                    </TextBox>
-                }
-                contentRight={
-                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
-                                  onClick={() => deleteExpense(transaction.transaction_id)}>
-                        <IconTrash size="xs" color="inherit" />
-                    </ActionButton>
-                }
-            />
-        ))}
-    </CardContent>
-</Card>
-<Card className="cards-row-card" style={{ maxHeight: '22.5rem' }} tabIndex={-1}>
-    <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>} />
-    <CardContent className="scrollable-content" compact>
-        {incomeTransactions.slice().reverse().map((transaction, index2) => (
-            <CellListItem
-                key={index2}
-                tabIndex={expenseTransactions.length + index2 + 1} // Индексы начинаются после последнего элемента первого списка
-                content={
-                    <TextBox>
-                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
-                        <div className="row-notes">
-                            <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
-                            <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
-                            <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{transaction.amount}</Price></TextBoxSubTitle>
-                        </div>
-                    </TextBox>
-                }
-                contentRight={
-                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
-                                  onClick={() => deleteIncome(transaction.transaction_id)}>
-                        <IconTrash size="xs" color="inherit" />
-                    </ActionButton>
-                }
-            />
-        ))}
-    </CardContent>
-</Card>
-
+                        <Cell className="name-list" content={<TextBoxBigTitle>Расходы:</TextBoxBigTitle>} />
+                        <CardContent className="scrollable-content" compact>
+                            {expenseTransactions.slice().reverse().map((transaction, index1) => (
+                            <CellListItem
+                                key={index1}
+                                tabIndex={index1 + 1} // Индексы начинаются с 1
+                                content={
+                                    <TextBox>
+                                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                                            <div className="row-notes">
+                                                <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{Math.abs(transaction.amount)}</Price></TextBoxSubTitle>
+                                            </div>
+                                    </TextBox>
+                                }
+                                contentRight={
+                                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
+                                        onClick={() => deleteExpense(transaction.transaction_id)}>
+                                        <IconTrash size="xs" color="inherit" />
+                                    </ActionButton>
+                                }
+                            />
+                        ))}
+                        </CardContent>
+                    </Card>
+                    <Card className="cards-row-card" style={{ maxHeight: '22.5rem' }} tabIndex={-1}>
+                        <Cell className="name-list" content={<TextBoxBigTitle>Доходы:</TextBoxBigTitle>} />
+                        <CardContent className="scrollable-content" compact>
+                            {incomeTransactions.slice().reverse().map((transaction, index2) => (
+                            <CellListItem
+                                key={index2}
+                                tabIndex={expenseTransactions.length + index2 + 1} // Индексы начинаются после последнего элемента первого списка
+                                content={
+                                    <TextBox>
+                                        <TextBoxTitle>{transaction.name}</TextBoxTitle>
+                                            <div className="row-notes">
+                                                <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{Math.abs(transaction.amount)}</Price></TextBoxSubTitle>
+                                            </div>
+                                    </TextBox>
+                                }
+                                contentRight={
+                                    <ActionButton ref={ref} pin="circle-circle" className="sn-section-item" tabIndex={-1}
+                                        onClick={() => deleteIncome(transaction.transaction_id)}>
+                                        <IconTrash size="xs" color="inherit" />
+                                    </ActionButton>
+                                }
+                            />
+                        ))}
+                        </CardContent>
+                    </Card>
                     <Card className="cards-row-card sum-card">
                         <CardContent compact>
                             <Cell
                                 content={<TextBoxBigTitle>Общая сумма расходов: </TextBoxBigTitle>}
                             />
                             <Cell
-                                content={<TextBoxBiggerTitle><Price currency="rub"
-                                                                    stroke={false}>{totalExpense}</Price></TextBoxBiggerTitle>}
-
+                                content={
+                                    <TextBoxBiggerTitle>
+                                        <Price currency="rub" stroke={false}>{totalExpense}</Price>
+                                    </TextBoxBiggerTitle>
+                                }
                                 alignRight="center"
                             />
                         </CardContent>
@@ -692,18 +714,20 @@ export function App() {
                                 content={<TextBoxBigTitle>Общая сумма доходов: </TextBoxBigTitle>}
                             />
                             <Cell
-                                content={<TextBoxBiggerTitle><Price currency="rub"
-                                                                    stroke={false}>{totalIncome}</Price></TextBoxBiggerTitle>}
-
+                                content={
+                                    <TextBoxBiggerTitle>
+                                        <Price currency="rub" stroke={false}>{totalIncome}</Price>
+                                    </TextBoxBiggerTitle>
+                                }
                                 alignRight="center"
                             />
                         </CardContent>
                     </Card>
                 </div>
+                <div className="empty-block" style={{ height: '22.5rem', width: '100%' }}>
+                </div>
             </div>
-
         );
-
     }
 
     //sum
@@ -712,12 +736,12 @@ export function App() {
 
     useEffect(() => {
         const calculateTotalExpense = () => {
-            const total = expenseTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+            const total = expenseTransactions.reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
             setTotalExpense(total);
         };
 
         const calculateTotalIncome = () => {
-            const total = incomeTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+            const total = incomeTransactions.reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
             setTotalIncome(total);
         };
 
