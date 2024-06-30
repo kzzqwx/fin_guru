@@ -112,9 +112,9 @@ export function App() {
             date: formatDate(action.date),
             amount: parseFloat(action.amount)
         };
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`, data);
+        await axios.post(`https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`, data);
         await fetchDataAll();
-        console.log('add expense', `http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`);
+        console.log('add expense', `https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`);
         console.log(data);
     };
 
@@ -129,7 +129,7 @@ export function App() {
         if (action.tag_id === null) {
             throw new Error(`Tag with label "${action.tag_id}" not found`);
         }
-        await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_ID}`, data);
+        await axios.post(`https://salutfinanceapp.ru/api/v1/finance/income?user_id=${user_ID}`, data);
         await fetchDataAll();
         console.log('add income', user_ID);
         console.log(data);
@@ -138,19 +138,19 @@ export function App() {
     const delete_expense = async (action) => {
         const user_ID = userIDRef.current;
         const transactionId = action.transaction_id;
-        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
+        await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
         console.log('delete expense', user_ID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
+        console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
     };
 
     const delete_income = async (action) => {
         const user_ID = userIDRef.current;
         const transactionId = action.transaction_id;
-        await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+        await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
         console.log('delete income', userID);
-        console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+        console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
     };
 
 
@@ -271,7 +271,7 @@ export function App() {
 
     const fetchDataAll = async () => {
         const user_ID = userIDRef.current;
-        axios.get(`http://45.147.177.32:8000/api/v1/finance?user_id=${user_ID}`).then(response => {
+        axios.get(`https://salutfinanceapp.ru/api/v1/finance?user_id=${user_ID}`).then(response => {
             setExpenseTransactions(response.data.transactions.expense);
             setIncomeTransactions(response.data.transactions.income);
 
@@ -292,9 +292,9 @@ export function App() {
      const deleteExpense = async (transactionId) => {
         try {
             const user_ID = userIDRef.current;
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
+            await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
             console.log('Delete Notes', userID);
-            console.log(`http://45.147.177.32:8000/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
+            console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
         } catch (error) {
             console.error(error);
@@ -303,9 +303,9 @@ export function App() {
     const deleteIncome = async (transactionId) => {
         try {
             const user_ID = userIDRef.current;
-            await axios.delete(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+            await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
             console.log('Delete Notes', user_ID);
-            console.log(`http://45.147.177.32:8000/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+            console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
         } catch (error) {
             console.error(error);
@@ -379,7 +379,7 @@ export function App() {
             amount: parseFloat(amountExpense)
         };
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/expense?user_id=${user_ID}`, data);
+            await axios.post(`https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`, data);
             setIsExpenseOpen(false);
             console.log('Submit Expense', user_ID);
             console.log(data);
@@ -517,7 +517,7 @@ export function App() {
         };
 
         try {
-            await axios.post(`http://45.147.177.32:8000/api/v1/finance/income?user_id=${user_ID}`, data);
+            await axios.post(`https://salutfinanceapp.ru/api/v1/finance/income?user_id=${user_ID}`, data);
             console.log('Submit Income', user_ID);
             console.log(data);
             setIsIncomeOpen(false);
