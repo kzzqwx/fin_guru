@@ -42,9 +42,6 @@ export function App() {
     }
     //Установили значение для userID
     function initialize_user(action){
-        const sanitizedUserId = removeSpecialCharacters(action.user_id);
-        setUserID(sanitizedUserId);
-        console.log('User ID initialized:', sanitizedUserId);
         return action.user_id;
     }
 
@@ -115,8 +112,7 @@ export function App() {
         await axios.post(`https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`, data);
         await fetchDataAll();
         console.log('add expense', `https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`);
-        console.log(data);
-    };
+        };
 
     const add_income = async (action) => {
         const user_ID = userIDRef.current;
@@ -132,7 +128,6 @@ export function App() {
         await axios.post(`https://salutfinanceapp.ru/api/v1/finance/income?user_id=${user_ID}`, data);
         await fetchDataAll();
         console.log('add income', user_ID);
-        console.log(data);
     };
 
     const delete_expense = async (action) => {
@@ -141,7 +136,7 @@ export function App() {
         await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
         console.log('delete expense', user_ID);
-        console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
+        //console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
     };
 
     const delete_income = async (action) => {
@@ -149,8 +144,8 @@ export function App() {
         const transactionId = action.transaction_id;
         await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
         await fetchDataAll();
-        console.log('delete income', userID);
-        console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+        console.log('delete income', user_ID);
+        //console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
     };
 
 
@@ -160,6 +155,9 @@ export function App() {
         if (action) {
             switch (action.type) {
                 case 'initialize_user':
+                    const sanitizedUserId = removeSpecialCharacters(action.user_id);
+                    setUserID(sanitizedUserId);
+                    console.log('User ID initialized:', sanitizedUserId);
                     return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
@@ -176,46 +174,46 @@ export function App() {
         }
     };
 
-    // useEffect(() => {
-    //     console.log('componentDidMount');
-    //     assistant = initializeAssistant(() => getStateForAssistant());
-    //
-    //     assistant.on('data', (event) => {
-    //             console.log('assistant.on(data)', event);
-    //             if (event.type === 'character') {
-    //                 console.log(`assistant.on(data): character: "${event?.character?.id}"`);
-    //             }
-    //             else if (event.type === 'insets') {
-    //                 console.log('assistant.on(data): insets');
-    //             } else {
-    //                 const { action } = event;
-    //                 dispatchAssistantAction(action);
-    //             }
-    //         }
-    //
-    //     );
-    //
-    //     assistant.on('start', (event) => {
-    //         let initialData = assistant.getInitialData();
-    //         console.log(`assistant.on(start)`, event, initialData);
-    //     });
-    //
-    //     assistant.on('command', (event) => {
-    //         console.log(`assistant.on(command)`, event);
-    //     });
-    //
-    //     assistant.on('error', (event) => {
-    //         console.log(`assistant.on(error)`, event);
-    //     });
-    //
-    //     assistant.on('tts', (event) => {
-    //         console.log(`assistant.on(tts)`, event);
-    //     });
-    //
-    //
-    // }, []);
-    //
-        const [currentPage, setCurrentPage] = useState('main');
+    useEffect(() => {
+        console.log('componentDidMount');
+        assistant = initializeAssistant(() => getStateForAssistant());
+
+        assistant.on('data', (event) => {
+                console.log('assistant.on(data)', event);
+                if (event.type === 'character') {
+                    console.log(`assistant.on(data): character: "${event?.character?.id}"`);
+                }
+                else if (event.type === 'insets') {
+                    console.log('assistant.on(data): insets');
+                } else {
+                    const { action } = event;
+                    dispatchAssistantAction(action);
+                }
+            }
+
+        );
+
+        assistant.on('start', (event) => {
+            let initialData = assistant.getInitialData();
+            console.log(`assistant.on(start)`, event, initialData);
+        });
+
+        assistant.on('command', (event) => {
+            console.log(`assistant.on(command)`, event);
+        });
+
+        assistant.on('error', (event) => {
+            console.log(`assistant.on(error)`, event);
+        });
+
+        assistant.on('tts', (event) => {
+            console.log(`assistant.on(tts)`, event);
+        });
+
+
+    }, []);
+
+    const [currentPage, setCurrentPage] = useState('main');
 
     //Expense
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);
@@ -281,7 +279,7 @@ export function App() {
         }).catch(error => {
             console.error('Error fetching data:', error);
         });
-        console.log('initialize_user 1 ref', userIDRef.current);
+        //console.log('initialize_user 1 ref', userIDRef.current);
         console.log('user_ID', user_ID);
     };
 
@@ -296,9 +294,9 @@ export function App() {
         try {
             const user_ID = userIDRef.current;
             await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
-            console.log('Delete Notes', userID);
-            console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
+            console.log('Delete Notes', user_ID);
+            //console.log(`https://salutfinanceapp.ru/api/v1/finance/expense/delete/${transactionId}?user_id=${user_ID}`);
         } catch (error) {
             console.error(error);
         }
@@ -307,9 +305,10 @@ export function App() {
         try {
             const user_ID = userIDRef.current;
             await axios.delete(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
-            console.log('Delete Notes', user_ID);
-            console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
             await fetchDataAll();
+            //console.log(`https://salutfinanceapp.ru/api/v1/finance/income/delete/${transactionId}?user_id=${user_ID}`);
+            console.log('Delete Notes', user_ID);
+            
         } catch (error) {
             console.error(error);
         }
@@ -394,13 +393,13 @@ export function App() {
         };
         try {
             await axios.post(`https://salutfinanceapp.ru/api/v1/finance/expense?user_id=${user_ID}`, data);
+            await fetchDataAll();
             setIsExpenseOpen(false);
             console.log('Submit Expense', user_ID);
             console.log(data);
             setDateInputExpense('');
             setNameExpense('');
             setAmountExpense('');
-            await fetchDataAll();
         } catch (error) {
             console.error("There was an error creating the expense!", error, data);
         }
@@ -541,13 +540,14 @@ export function App() {
 
         try {
             await axios.post(`https://salutfinanceapp.ru/api/v1/finance/income?user_id=${user_ID}`, data);
+            await fetchDataAll();
             console.log('Submit Income', user_ID);
             console.log(data);
             setIsIncomeOpen(false);
             setDateInputIncome('');
             setNameIncome('');
             setAmountIncome('');
-            await fetchDataAll();
+            
         } catch (error) {
             console.error("error creating the income", error, data);
         }
@@ -652,7 +652,7 @@ export function App() {
                                     <TextBox>
                                         <TextBoxTitle>{transaction.name}</TextBoxTitle>
                                             <div className="row-notes">
-                                                <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>{transaction.transaction_id}</TextBoxSubTitle>
                                                 <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
                                                 <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{Math.abs(transaction.amount)}</Price></TextBoxSubTitle>
                                             </div>
@@ -679,7 +679,7 @@ export function App() {
                                     <TextBox>
                                         <TextBoxTitle>{transaction.name}</TextBoxTitle>
                                             <div className="row-notes">
-                                                <TextBoxSubTitle>Id: {transaction.transaction_id}</TextBoxSubTitle>
+                                                <TextBoxSubTitle>{transaction.transaction_id}</TextBoxSubTitle>
                                                 <TextBoxSubTitle>Дата: {transaction.date}</TextBoxSubTitle>
                                                 <TextBoxSubTitle>Сумма: <Price currency="rub" stroke={false}>{Math.abs(transaction.amount)}</Price></TextBoxSubTitle>
                                             </div>
