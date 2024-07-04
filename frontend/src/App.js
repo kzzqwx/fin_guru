@@ -42,6 +42,9 @@ export function App() {
     }
     //Установили значение для userID
     function initialize_user(action){
+            const sanitizedUserId = removeSpecialCharacters(action.user_id);
+            setUserID(sanitizedUserId);
+            console.log('User ID initialized:', sanitizedUserId);
         return action.user_id;
     }
 
@@ -155,9 +158,6 @@ export function App() {
         if (action) {
             switch (action.type) {
                 case 'initialize_user':
-                    const sanitizedUserId = removeSpecialCharacters(action.user_id);
-                    setUserID(sanitizedUserId);
-                    console.log('User ID initialized:', sanitizedUserId);
                     return initialize_user(action);
                 case 'add_expense':
                     return add_expense(action);
